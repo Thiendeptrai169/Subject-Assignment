@@ -1,0 +1,140 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #294683;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: #333;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-box {
+    background-color: #e8e8ff;
+    border-radius: 10px;
+    padding: 40px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+
+h2 {
+    color: #294683;
+    margin-bottom: 30px;
+    position: relative;
+}
+/* h2::before{
+    content: " ";
+     position: absolute;
+    width: 55px;
+    height: 25px;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+     background-size: contain;
+     background-repeat: no-repeat;
+     background-position: center;
+   filter: invert(0.8);
+} */
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-container {
+    position: relative;
+    border-radius: 5px;
+    background-color: white; 
+}
+
+.input-icon {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    z-index: 1;
+}
+
+.input-group input {
+    width: calc(100% - 60px);
+    padding: 10px 40px 10px 40px;
+    font-size: 16px;
+    outline: none;
+    border: none;
+    background-color: transparent; 
+     /* z-index: 0;  */
+}
+.eye-icon {
+    position: absolute;
+    left: 920px;
+    top: 53%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    z-index: 2; 
+    padding-right: 10px;
+}
+
+.eye-icon img{
+    width: 20px;
+    height: 20px;
+}
+
+.forgot-help {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    font-size: 0.9em;
+    align-items: center;
+}
+
+.forgot-help a {
+    color: #4a66a9;
+    text-decoration: none;
+}
+
+.forgot-help .icon {
+    width: 1em;
+    height: 1em;
+    position: absolute;
+    left: 885px;
+    top: 59.5%;
+    transform: translateY(-50%);
+    display: inline-block;
+    margin-left: 0.3em;
+}
+
+.forgot-help .icon img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+.login-button {
+    background-color: #294683;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+}
+
+.login-button:hover {
+    background-color: #dd9e09;
+}
