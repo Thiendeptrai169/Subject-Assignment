@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký Đề Tài</title>
+    <link rel="stylesheet" href="style.css">  <!-- Liên kết đến file CSS -->
+</head>
+<body>
+    <div id="title">Danh sách đề tài mở cho đăng ký</div>
+
+    <div id="filter-box">
+        <label for="filter-code">Tìm kiếm theo mã đề tài: </label>
+        <input type="text" id="filter-code" placeholder="Nhập mã đề tài" oninput="filterTable()">
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Chọn</th>
+                <th>Mã Đề Tài</th>
+                <th>Tên Đề Tài</th>
+                <th>Mô Tả</th>
+                <th>Số Lượng SV Tối Đa</th>
+                <th>Hạn Nộp</th>
+            </tr>
+        </thead>
+        <tbody id="data-table-1">
+            </tbody>
+    </table>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Chọn</th>
+                <th>Tên Đề Tài</th>
+                <th>Mô Tả</th>
+                <th>Số Lượng SV Tối Đa</th>
+                <th>Hạn Nộp</th>
+            </tr>
+        </thead>
+        <tbody id="data-table-2">
+            </tbody>
+    </table>
+
+    <div id="group-form" style="display: none;">
+        <h3>Thông Tin Nhóm</h3>
+        <div class="form-group">
+            <label for="group-name">Tên Nhóm:</label>
+            <input type="text" id="group-name" placeholder="Nhập tên nhóm">
+        </div>
+        <div class="form-group">
+            <label for="group-leader">Trưởng Nhóm:</label>
+            <input type="text" id="group-leader" placeholder="Nhập tên trưởng nhóm">
+        </div>
+        <div class="form-group">
+            <label for="student-count">Số Lượng Sinh Viên:</label>
+            <input type="number" id="student-count" placeholder="Nhập số lượng sinh viên" min="1">
+        </div>
+        <button onclick="submitGroup()">Gửi</button>
+    </div>
+
+    <script>
+        const tableBody1 = document.getElementById("data-table-1");
+        const tableBody2 = document.getElementById("data-table-2");
+        const groupForm = document.getElementById("group-form");
+        let data = []
+        let selectedTopic = null;
+
+        function renderTable(tableBody, dataToRender) {
+            tableBody.innerHTML = "";
+            dataToRender.forEach((item, index) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>
+                        <input type="checkbox" id="check-${index}" onclick="selectTopic(${index})">
+                    </td>
+                    <td>${item.project_code || ''}</td>
+                    <td>${item.project_name}</td>
+                    <td>${item.description}</td>
+                    <td id="soLuongSV-${index}">${item.max_students}</td>
+                    <td>${item.end_date ? new Date(item.end_date).toLocaleDateString('vi-VN') : ''}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function filterTable() {
+            const filterValue = document.getElementById("filter-code").value.toLowerCase();
+            const filteredData = data.filter(item => item.project_code.toLowerCase().includes(filterValue));
+            renderTable(tableBody1, filteredData);
+        }
+
+        function selectTopic(index) {
+            let checkbox = document.getElementById(`check-${index}`);
+             // Bỏ chọn các checkbox khác
+            for (let i = 0; i < data.length; i++) {
+                if (i !== index) {
+                    const otherCheckbox = document.getElementById(`check-${i}`);
+                    if (otherCheckbox) {
+                        otherCheckbox.checked = false;
+                    }
+                }
+            }
+
+            if (checkbox.checked) {
+                selectedTopic = { ...data[index] };
+                populateSecondTable(selectedTopic);
+                groupForm.style.display = "block";
+            } else {
+                selectedTopic = null;
+                groupForm.style.display = "none";
+                tableBody2.innerHTML = ""; // Xóa nội dung bảng thứ hai khi bỏ chọn
+            }
+        }
+
+        function populateSecondTable(topic) {
+            tableBody2.innerHTML = "";  //Xóa nội dung cũ trước
+            const row = document.createElement("tr");
+                row.innerHTML = `
+                <td></td>
+                <td>${topic.project_name}</td>
+                <td>${topic.description}</td>
+                <td>${topic.max_students}</td>
+                <td>${topic.due_date ? new Date(topic.due_date).toLocaleDateString('vi-VN'): ''}</td>
+                `;
+            tableBody2.appendChild(row);
+        }
+
+        function submitGroup() {
+            const groupName = document.getElementById("group-name").value;
+            const groupLeader = document.getElementById("group-leader").value;
+            const studentCount = parseInt(document.getElementById("student-count").value);
+ 
+              if (!groupName || !groupLeader || isNaN(studentCount) || studentCount < 1) {
+                 alert("Vui lòng nhập đầy đủ thông tin nhóm và số lượng sinh viên phải lớn hơn 0.");
+                 return;
+              }
+              if(!selectedTopic){
+                 alert("Vui lòng chọn một đề tài");
+              }
+ 
+              if (studentCount > selectedTopic.max_students){
+                 alert(`Số lượng sinh viên vượt quá số lượng tối đa cho phép của đề tài này. Tối đa: ${selectedTopic.max_students}`);
+                 return;
+              }
+ 
+              alert(`Đã gửi đăng ký:\n- Tên nhóm: ${groupName}\n- Trưởng nhóm: ${groupLeader}\n- Số lượng SV: ${studentCount}\n- Đề tài: ${selectedTopic.project_name}`);
+               // Reset form và bảng
+             document.getElementById("group-name").value = "";
+             document.getElementById("group-leader").value = "";
+             document.getElementById("student-count").value = "";
+             groupForm.style.display = "none";
+             tableBody2.innerHTML = "";  //Xóa bảng thứ hai
+              for (let i = 0; i < data.length; i++) { // Bỏ chọn tất cả checkbox
+                     const otherCheckbox = document.getElementById(`check-${i}`);
+                     if (otherCheckbox) {
+                         otherCheckbox.checked = false;
+                     }
+                 }
+             selectedTopic = null; // Reset selected topic
+              fetchData(); // Gọi lại fetchData để load lại dữ liệu
+        }
+
+           // Khởi tạo bảng khi trang được tải
+           renderTable(tableBody1, data);
+
+
+        async function fetchData(){
+            try{
+                const response = await fetch('http://localhost:3000/api/projects');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                data = await response.json(); 
+                renderTable(tableBody1, data); 
+            } catch (error) {
+                console.error("Lỗi khi lấy dữ liệu:", error);
+                alert('Đã xảy ra lỗi khi lấy dữ liệu từ server.');
+            }
+        }  
+        fetchData();  
+    </script>
+</body>
+</html>
