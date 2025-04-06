@@ -1,12 +1,4 @@
-const data = [
-    { maDeTai: "DT01", ten: "Đề tài 1", soLuongSVToiThieu: 1, soLuongSVToiDa: 5, trangThai: "Mở", nguoiTao: "Nguyễn Văn A", monHoc: "CNPM", lop: "D22CQCN01-N", ngayBatDau: "01/03/2025", ngayKetThuc: "15/03/2025", moTa: "Mô tả đề tài 1" },
-    { maDeTai: "DT02", ten: "Đề tài 2", soLuongSVToiThieu: 1, soLuongSVToiDa: 3, trangThai: "Mở", nguoiTao: "Trần Thị B", monHoc: "LTW", lop: "D22CQCN02-N", ngayBatDau: "05/03/2025", ngayKetThuc: "20/03/2025", moTa: "Mô tả đề tài 2" },
-    { maDeTai: "DT03", ten: "Đề tài 3", soLuongSVToiThieu: 2, soLuongSVToiDa: 4, trangThai: "Mở", nguoiTao: "Lê Văn C", monHoc: "LTĐH", lop: "D22CQCN03-N", ngayBatDau: "10/03/2025", ngayKetThuc: "25/03/2025", moTa: "Mô tả đề tài 3" },
-    { maDeTai: "DT04", ten: "Đề tài 4", soLuongSVToiThieu: 1, soLuongSVToiDa: 6, trangThai: "Mở", nguoiTao: "Phạm Thị D", monHoc: "CSDL", lop: "D22CQCN01-N", ngayBatDau: "12/03/2025", ngayKetThuc: "28/03/2025", moTa: "Mô tả đề tài 4" },
-    { maDeTai: "DT05", ten: "Đề tài 5", soLuongSVToiThieu: 1, soLuongSVToiDa: 5, trangThai: "Mở", nguoiTao: "Ngô Văn E", monHoc: "CNPM", lop: "D22CQCN02-N", ngayBatDau: "15/03/2025", ngayKetThuc: "30/03/2025", moTa: "Mô tả đề tài 5" },
-    { maDeTai: "DT06", ten: "Đề tài 6", soLuongSVToiThieu: 2, soLuongSVToiDa: 4, trangThai: "Mở", nguoiTao: "Đặng Thị F", monHoc: "LTW", lop: "D22CQCN03-N", ngayBatDau: "18/03/2025", ngayKetThuc: "02/04/2025", moTa: "Mô tả đề tài 6" },
-    { maDeTai: "DT07", ten: "Đề tài 7", soLuongSVToiThieu: 1, soLuongSVToiDa: 3, trangThai: "Mở", nguoiTao: "Hoàng Văn G", monHoc: "LTĐH", lop: "D22CQCN01-N", ngayBatDau: "20/03/2025", ngayKetThuc: "05/04/2025", moTa: "Mô tả đề tài 7" }
-];
+
 
 
 const classes = [
@@ -48,8 +40,8 @@ function populateSelect(selectElement, data) {
         selectElement.appendChild(option);
     });
 }
-populateSelect(filterClass, classes);
-populateSelect(filterSubject, subjects);
+// populateSelect(filterClass, classes);
+// populateSelect(filterSubject, subjects);
 
 
 function renderTable(tableBody, data) {
@@ -67,7 +59,6 @@ function renderTable(tableBody, data) {
             <td>${item.trangThai}</td> 
             <td>${item.nguoiTao}</td> 
             <td>${item.monHoc}</td> 
-            <td>${item.lop}</td>
             <td>${item.ngayBatDau}</td> 
             <td>${item.ngayKetThuc}</td> 
             <td>${item.moTa}</td> 
@@ -80,64 +71,64 @@ function renderTable(tableBody, data) {
     });
 }
 
-filterClass.addEventListener('change', () => {
-    filterTableByClass();
-    filterTableBySubject();
-    filterSubject.disabled = false;
-});
+// filterClass.addEventListener('change', () => {
+//     filterTableByClass();
+//     filterTableBySubject();
+//     filterSubject.disabled = false;
+// });
 
-filterSubject.addEventListener('change', () => {
-    filterTableBySubject();
-});
-document.getElementById("filter-code").addEventListener("input", filterTable);
+// filterSubject.addEventListener('change', () => {
+//     filterTableBySubject();
+// });
+// document.getElementById("filter-code").addEventListener("input", filterTable);
 
-function filterTableByClass() {
-    const selectedClass = filterClass.options[filterClass.selectedIndex]?.value || "ALL";
-    const filteredData = selectedClass === "ALL" 
-        ? data 
-        : data.filter(item => item.lop === selectedClass);
+// function filterTableByClass() {
+//     const selectedClass = filterClass.options[filterClass.selectedIndex]?.value || "ALL";
+//     const filteredData = selectedClass === "ALL" 
+//         ? data 
+//         : data.filter(item => item.lop === selectedClass);
 
-    renderTable(tableBody1, filteredData);
-    filterTableByClass.filteredData = filteredData;
-}
+//     renderTable(tableBody1, filteredData);
+//     filterTableByClass.filteredData = filteredData;
+// }
 
-function filterTableBySubject() {
-    const selectedSubject = filterSubject.options[filterSubject.selectedIndex]?.value || "ALL";
-    const filteredData = selectedSubject === "ALL" 
-        ? (filterTableByClass.filteredData || data) 
-        : (filterTableByClass.filteredData || data).filter(item => item.monHoc === selectedSubject);
+// function filterTableBySubject() {
+//     const selectedSubject = filterSubject.options[filterSubject.selectedIndex]?.value || "ALL";
+//     const filteredData = selectedSubject === "ALL" 
+//         ? (filterTableByClass.filteredData || data) 
+//         : (filterTableByClass.filteredData || data).filter(item => item.monHoc === selectedSubject);
 
-    renderTable(tableBody1, filteredData);
-
-
-    if (filteredData.length === 0) {
-        tableBody1.innerHTML = `
-            <tr>
-                <td colspan="12" style="text-align: center;">Không có dữ liệu phù hợp</td>
-            </tr>
-        `;
-    }
-    filterTableBySubject.filteredData = filteredData;
-}
+//     renderTable(tableBody1, filteredData);
 
 
-function filterTable() {
-    const filterValue = document.getElementById("filter-code").value.toLowerCase();
+//     if (filteredData.length === 0) {
+//         tableBody1.innerHTML = `
+//             <tr>
+//                 <td colspan="12" style="text-align: center;">Không có dữ liệu phù hợp</td>
+//             </tr>
+//         `;
+//     }
+//     filterTableBySubject.filteredData = filteredData;
+// }
 
-    const filteredData = (filterTableBySubject.filteredData || filterTableByClass.filteredData || data).filter(item => 
-        item.ten.toLowerCase().includes(filterValue)
-    );
 
-    if (filteredData.length === 0) {
-        tableBody1.innerHTML = `
-            <tr>
-                <td colspan="12" style="text-align: center;">Không có dữ liệu phù hợp</td>
-            </tr>
-        `;
-    } else {
-        renderTable(tableBody1, filteredData);
-    }
-}
+// function filterTable() {
+//     const filterValue = document.getElementById("filter-code").value.toLowerCase();
+
+//     const filteredData = (filterTableBySubject.filteredData || filterTableByClass.filteredData || data).filter(item => 
+//         item.ten.toLowerCase().includes(filterValue)
+//     );
+
+//     if (filteredData.length === 0) {
+//         tableBody1.innerHTML = `
+//             <tr>
+//                 <td colspan="12" style="text-align: center;">Không có dữ liệu phù hợp</td>
+//             </tr>
+//         `;
+//     } else {
+//         renderTable(tableBody1, filteredData);
+//     }
+// }
 
 function selectTopic(index) {
     const checkbox = document.getElementById(`check-${index}`);
@@ -231,6 +222,39 @@ function resetForm() {
 
 document.getElementById('submit-btn').addEventListener('click', submitRegistration);
 document.getElementById('reset-btn').addEventListener('click', resetForm);
-populateSelect(filterClass, classes);
-populateSelect(filterSubject, subjects);
-renderTable(tableBody1, data);
+
+//Project Table
+let data = []; // Dữ liệu sẽ được fetch từ server
+
+// Gọi API để lấy danh sách đề tài
+fetch('http://localhost:3000/api/projects')
+  .then(response => response.json())
+  .then(result => {
+   
+    data = result.map(item => ({
+      maDeTai: item.ProjectCode,
+      ten: item.ProjectName,
+      soLuongSVToiThieu: item.MinStudents,
+      soLuongSVToiDa: item.MaxStudents,
+      trangThai: item.Status,
+      nguoiTao: item.SubjectName,
+      monHoc: item.LecturerName,            
+      ngayBatDau: item.StartDate?.split('T')[0],
+      ngayKetThuc: item.EndDate?.split('T')[0],
+      moTa: item.Description || ''
+    }));
+
+    renderTable(tableBody1, data);
+
+  })
+  .catch(error => {
+    console.error('❌ Lỗi khi fetch data:', error);
+    tableBody1.innerHTML = `<tr><td colspan="12" style="text-align:center;">Không thể tải dữ liệu từ server</td></tr>`;
+  });
+
+
+
+
+// populateSelect(filterClass, classes);
+// populateSelect(filterSubject, subjects);
+// renderTable(tableBody1, data);
