@@ -17,7 +17,31 @@
                 </svg>
                 <span class="badge">5</span>
             </div>
-            <img src="../icon/Thiên-fotor-2025032615838.png" alt="User Avatar" class="avatar">
+            <div class="user-profile">
+                <img src="../icon/Thiên-fotor-2025032615838.png" alt="User Avatar" class="avatar-mini" id="userAvatar">
+                <div class="user-popup" id="userPopup">
+                    <div class="user-info">
+                        <p>Phạm Hùng Thiên-N22DCCN180</p>
+                    </div>
+                    <div class="popup-menu">
+                        <a href="#" class="menu-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
+                                <path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                            <span>Hồ sơ của tôi</span>
+                        </a>
+                        <a href="#" class="menu-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
+                                <path fill="currentColor" d="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z" />
+                            </svg>
+                            <span>Đổi mật khẩu</span>
+                        </a>
+                    </div>
+                    <div class="popup-footer">
+                        <button class="logout-btn">Đăng xuất</button>
+                    </div>
+                </div>
+            </div>  
         </div>
     </div>
     <div class="container">
@@ -52,11 +76,11 @@
                 <select id="filter-class" onchange="filterTable()"></select>
                 
                 <label for ="filter-subject">Lọc theo môn học: </label>
-                <select id="filter-subject" onchange="filterTable()" disabled>
+                <select id="filter-subject" onchange="filterTable()">
                     <option value ="Tất cả" ></option>
                 </select>
-                <label for="filter-code">Tìm kiếm theo tên đề tài: </label>
-                <input type="text" id="filter-code" placeholder="Nhập tên đề tài" oninput="filterTable()">
+                <label for="filter-name">Tìm kiếm theo tên đề tài: </label>
+                <input type="text" id="filter-name" placeholder="Nhập tên đề tài" ">
             </div>
             <table>
                 <thead>
@@ -66,9 +90,10 @@
                         <th>Tên Đề Tài</th>
                         <th>Số Lượng SV Tối Thiểu</th>
                         <th>Số Lượng SV Tối Đa</th>
-                        <th>Trạng Thái</th>
+                        <!-- <th>Trạng Thái</th> -->
                         <th>Giảng viên</th>
                         <th>Môn Học</th>
+                        <th>Lớp</th>
                         <th>Ngày Bắt Đầu</th>
                         <th>Ngày Kết Thúc</th>
                         <th>Mô Tả</th>

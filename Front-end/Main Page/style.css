@@ -64,11 +64,12 @@ body {
     font-weight: bold; 
 }
 
-.avatar {
+.avatar-mini {
     object-fit: cover;
     border-radius: 50%;
     margin-right: 10px;
     transform: scale(1.5);
+    cursor: pointer;
 }
 
 .container {
@@ -203,6 +204,15 @@ td {
     font-size: 14px;
 }
 
+tr.registered-project{
+    opacity: 0.7;
+    background-color: #eeeeee;
+}
+
+tr.registered-project td {
+    color: #6c757d; 
+}
+
 #selected-topic-info {
     background-color: #e0f7fa;
     padding: 15px;
@@ -302,4 +312,78 @@ button:hover {
 #sub-res-button{
     flex-direction: row;
     margin-left: 500px;
+}
+
+
+/* CSS cho user popup */
+
+.user-popup {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 45px;
+    width: 300px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+}
+
+.user-popup.show {
+    display: block;
+}
+
+.user-info {
+    padding: 15px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.user-info p {
+    margin: 0;
+    color: #555;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.popup-menu {
+    padding: 8px 0;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    color: #333;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.menu-item:hover {
+    background-color: #f5f5f5;
+}
+
+.menu-item svg {
+    margin-right: 12px;
+    color: #666;
+}
+
+.popup-footer {
+    padding: 12px 15px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.logout-btn {
+    width: 100%;
+    padding: 8px 0;
+    background-color: white;
+    color: #0056b3;
+    border: 1px solid #0056b3;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.logout-btn:hover {
+    background-color: #f0f7ff;
 }

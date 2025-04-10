@@ -85,6 +85,8 @@ CREATE TABLE Semesters (
     Id INT PRIMARY KEY IDENTITY,
     AcademicYear INT NOT NULL,
     Semester INT NOT NULL,
+    StartDate DATE NOT NULL,
+    EndDate DATE NOT NULL,
     CONSTRAINT UQ_Semester UNIQUE (AcademicYear, Semester)
 );
 
@@ -95,6 +97,8 @@ CREATE TABLE Subjects (
     Credits INT NOT NULL DEFAULT 1,
     ExamType NVARCHAR(20) CHECK (ExamType IN (N'LÝ THUYẾT', N'THỰC HÀNH', N'ÐỒ ÁN')) DEFAULT N'LÝ THUYẾT'
 );
+
+
 
 CREATE TABLE LecturerSubjects (
     Id INT PRIMARY KEY IDENTITY,
@@ -119,19 +123,28 @@ CREATE TABLE Projects (
     ProjectName NVARCHAR(100),
     MinStudents INT NOT NULL,
     MaxStudents INT NOT NULL,
-    Status NVARCHAR(30) CHECK (Status IN (N'CHƯA HOÀN THIỆN', N'ÐÃ HOÀN THIỆN', N'ÐÃ ÐƯỢC GIAO')) DEFAULT N'CHƯA HOÀN THIỆN',
     CreatedByLecturer INT NOT NULL FOREIGN KEY REFERENCES Lecturers(Id),
-    SubjectId INT NOT NULL FOREIGN KEY REFERENCES Subjects(Id),
     StartDate DATE,
     EndDate DATE,
     Description NVARCHAR(255)
 );
 
+CREATE TABLE SubjectProjects (
+    Id INT PRIMARY KEY IDENTITY,
+    ProjectId INT NOT NULL FOREIGN KEY REFERENCES Projects(Id),
+    SubjectId INT NOT NULL FOREIGN KEY REFERENCES Subjects(Id),
+    ClassId INT NOT NULL FOREIGN KEY REFERENCES Class(Id),
+	SemesterId INT NOT NULL FOREIGN KEY REFERENCES Semesters(Id)
+    UNIQUE (ProjectId, SubjectId, ClassId, SemesterId)
+);
+
+
+
 CREATE TABLE StudentGroups (
     Id INT PRIMARY KEY IDENTITY,
-    LeaderID INT NOT NULL UNIQUE,
-    ProjectId INT FOREIGN KEY REFERENCES Projects(Id),
-    GroupStatus NVARCHAR(30) CHECK (GroupStatus IN (N'TRỐNG', N'ÐANG LÀM', N'ÐÃ BÁO CÁO')) DEFAULT N'TRỐNG',
+    LeaderID INT NOT NULL ,
+    SubjectProjectsId INT FOREIGN KEY REFERENCES SubjectProjects(Id) NOT NULL UNIQUE,
+    GroupStatus NVARCHAR(30) CHECK (GroupStatus IN (N'CHƯA BÁO CÁO', N'ÐÃ BÁO CÁO')) DEFAULT N'CHƯA BÁO CÁO' NOT NULL,
     PresentationOrder INT NOT NULL,
     PresentationDate DATETIME,
     TotalMember INT NOT NULL,
@@ -247,8 +260,11 @@ INSERT INTO LecturerSubjects (LecturerId, SubjectId) VALUES
 (5, 1), (6, 2), (7, 3);
 
 -- 9. Semesters
-INSERT INTO Semesters (AcademicYear, Semester) VALUES
-(2024, 1), (2024, 2), (2025, 1);
+INSERT INTO Semesters (AcademicYear, Semester, StartDate, EndDate) VALUES
+(2024, 1, 2023-12-26, 2024-05-30),
+(2024, 2, 2024-08-01, 2024-12-25),
+(2025, 1, 2024-12-26, 2025-05-30), 
+(2025, 2, 2025-08-01, 2025-12-25);
 
 -- 10. Projects
 INSERT INTO Projects (ProjectCode, ProjectName, MinStudents, MaxStudents, Status, CreatedByLecturer, SubjectId, StartDate, EndDate, Description) VALUES
@@ -256,21 +272,18 @@ INSERT INTO Projects (ProjectCode, ProjectName, MinStudents, MaxStudents, Status
 ('DT02', N'Đề tài 2', 1, 3, N'CHƯA HOÀN THIỆN', 2, 2, '2025-03-05', '2025-03-20', N'Mô tả đề tài 2'),
 ('DT03', N'Đề tài 3', 2, 4, N'CHƯA HOÀN THIỆN', 3, 3, '2025-03-10', '2025-03-25', N'Mô tả đề tài 3');
 
--- 11. StudentGroups
-INSERT INTO StudentGroups (LeaderID, ProjectId, PresentationOrder, TotalMember, GroupName) VALUES
-(1, 1, 1, 3, N'Nhóm 1'),
-(3, 2, 2, 2, N'Nhóm 2'),
-(5, 3, 3, 2, N'Nhóm 3');
+-- SubjectProjects
+INSERT INTO SubjectProjects(ProjectId, SubjectId, ClassId) VALUES
+(1, 1, 1, 3),
+(1, 2, 1, 3),
+(1, 3, 1, 3),
+(2, 1, 1, 3),
+(2, 2, 1, 3),
+(2, 3, 1, 3),
+(3, 1, 1, 3),
+(3, 2, 1, 3),
+(3, 3, 1, 3)
 
--- 12. GroupMembers
-INSERT INTO GroupMembers (GroupId, StudentId, StudentRole, Score) VALUES
-(1, 1, N'NHÓM TRƯỞNG', 0),
-(1, 2, N'THÀNH VIÊN', 0),
-(1, 7, N'THÀNH VIÊN', 0),
-(2, 3, N'NHÓM TRƯỞNG', 0),
-(2, 4, N'THÀNH VIÊN', 0),
-(3, 5, N'NHÓM TRƯỞNG', 0),
-(3, 6, N'THÀNH VIÊN', 0);
 
 -- 13. Enrollment
 INSERT INTO Enrollment (StudentId, SubjectId, SemesterId, StudyStatus) VALUES
