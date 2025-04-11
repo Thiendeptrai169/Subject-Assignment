@@ -162,7 +162,7 @@ router.post('/register', async (req, res) => {
         SELECT COUNT(SG.Id) AS GroupCountInSubject
         FROM StudentGroups SG
         JOIN SubjectProjects SP ON SG.SubjectProjectsId = SP.Id
-        WHERE Sp.SubjectId = @currentSubjectId;
+        WHERE SP.SubjectId = @currentSubjectId
         AND SP.SemesterId = @currentSemesterId
       `;
       const orderRequest = transaction.request();

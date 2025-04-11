@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path'); 
 require('dotenv').config();
 
 const app = express();
@@ -9,6 +10,7 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+app.use(express.static(path.join(__dirname, '../Front-end')));
 //Route test
 // app.get('/', (req,res) => {
 //     res.send('API is running...');
@@ -23,6 +25,11 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/classes', classRoutes);
 app.use('/api/subjects', subjectRoutes);
 app.use('/api/semesters', semesterRoutes);
+
+
+app.get(/^\/(?!api).*/, (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../Front-end', 'index.html'));
+});
 
 //start the server
 app.listen(port, () => {

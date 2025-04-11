@@ -1,0 +1,57 @@
+<div id="title">Danh sách đề tài mở cho sinh viên đăng ký</div>
+<div id="filter-box">
+    <label for="filter-class">Lọc theo lớp: </label>
+    <select id="filter-class"></select>
+    <label for ="filter-subject">Lọc theo môn học: </label>
+    <select id="filter-subject"></select>
+    <label for="filter-name">Tìm kiếm theo tên đề tài: </label>
+    <input type="text" id="filter-name" placeholder="Nhập tên đề tài">
+</div>
+<table class="data-table-mainpage"> 
+    <thead>
+        <tr>
+            <th>Chọn</th>
+            <th>Mã Đề Tài</th>
+            <th>Tên Đề Tài</th>
+            <th>Số Lượng SV Tối Thiểu</th>
+            <th>Số Lượng SV Tối Đa</th>
+            <th>Giảng viên</th>
+            <th>Môn Học</th>
+            <th>Lớp</th>
+            <th>Ngày Bắt Đầu</th>
+            <th>Ngày Kết Thúc</th>
+            <th>Mô Tả</th>
+        </tr>
+    </thead>
+    <tbody id="data-table-1">
+    </tbody>
+</table>
+<div id="selected-topic-info" style="display: none;">
+    <strong>Đề tài đã chọn:</strong><br>
+    <span id="selected-topic-text"></span>
+</div>
+<form id="group-info-form" style="display: none;">
+    <div class="group-info">
+        <label for="group-name">Tên nhóm:</label>
+        <input type="text" id="group-name" name="group-name" required>
+        <label id = "member-count-label"for="member-count">Số lượng thành viên:</label>
+        <select id="member-count" name="member-count" required><br>
+            <option value = "" disabled selected hidden></option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+        </select>
+    </div>
+    <div id="member-fields">
+    </div>
+</form>
+<div id = "sub-res-button" style="display: none;">
+    <button id="submit-btn"><i class="fas fa-paper-plane"></i> Gửi đi</button>
+    <button id="reset-btn"><i class="fas fa-undo"></i> Reset</button>
+</div>
