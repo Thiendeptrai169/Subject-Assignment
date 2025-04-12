@@ -21,10 +21,13 @@ const projectRoutes = require('./routes/projects');
 const classRoutes = require('./routes/classes');
 const subjectRoutes = require('./routes/subjects');
 const semesterRoutes = require('./routes/semesters');
+const profileRoutes = require('./routes/profiles');
+
 app.use('/api/projects', projectRoutes);
 app.use('/api/classes', classRoutes);
 app.use('/api/subjects', subjectRoutes);
 app.use('/api/semesters', semesterRoutes);
+app.use('/api/profiles', profileRoutes);
 
 
 app.get(/^\/(?!api).*/, (req, res) => {

@@ -8,8 +8,7 @@ router.get('/', async (req, res) => {
         const request = pool.request();
         const result = await request.query(`
             SELECT 
-                Classcode,
-                ClassName
+                ClassCode
             FROM Class
         `);
         res.json(result.recordset);

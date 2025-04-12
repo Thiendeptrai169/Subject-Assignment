@@ -45,7 +45,7 @@ function initMainPage(){
             const classData = await classRes.json();
             const subjectData = await subjectRes.json();
     
-            const classOptions = classData.map(c => ({ value: c.Classcode, text: c.ClassName }));
+            const classOptions = classData.map(c => ({ value: c.ClassCode, text: c.ClassCode }));
             const subjectOptions = subjectData.map(s => ({ value: s.SubjectCode, text: s.SubjectName }));
     
             populateSelect(filterClass, classOptions);

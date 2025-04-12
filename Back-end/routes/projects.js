@@ -65,7 +65,7 @@ router.get('/filter', async (req, res) => {
             P.ProjectCode, P.ProjectName, P.MinStudents, P.MaxStudents,
             P.Status, P.StartDate, P.EndDate, P.Description,
             S.SubjectCode, S.SubjectName,
-            C.ClassCode, C.ClassName,
+            C.ClassCode,
             L.FullName AS LecturerName,
             CAST (CASE WHEN SG.Id IS NOT NULL THEN 1 ELSE 0 END AS BIT) AS IsRegistered
     

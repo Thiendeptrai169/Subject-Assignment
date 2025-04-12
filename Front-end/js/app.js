@@ -50,9 +50,12 @@ document.addEventListener('DOMContentLoaded', ()=>{
             loadedScripts[scriptUrl] = true;
             if(scriptUrl === '/script.js' && typeof initMainPage === 'function'){
                 initMainPage();
-            }else if (scriptUrl === '/js/profile-scripts.js' && typeof initMainPage === 'function'){
-                // initProfilePage();
-            } //add elseif for other scripts
+            }else if (scriptUrl === '/js/profile-script.js' && typeof initProfilePage === 'function'){
+                initProfilePage();
+            }else if(scriptUrl === '/js/manageproject-script.js' && typeof initManageProjectPage === 'function'){
+                initManageProjectPage();
+            }
+            //add)//add elseif for other scripts
 
         };
 
@@ -86,7 +89,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
                 contentUrl = '/pages/profile-content.html';
                 pageTitle = 'Thông tin sinh viên';
                 pageCSS = '/css/profile.css';
-                pageScript = null;
+                pageScript = '/js/profile-script.js';
                 break;
             // add another case here
 
