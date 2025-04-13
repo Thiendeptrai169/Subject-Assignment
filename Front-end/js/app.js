@@ -57,8 +57,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadSemester();
             } else if (scriptUrl === '/js/group-detail.js' && typeof loadGroupDetail === 'function') {
                 loadGroupDetail();
-            } else if (scriptUrl === '/js/lecturer-project.js' && typeof renderLecturerProjects === 'function') {
+            } else if (scriptUrl === '/js/lecturer-projects.js' && typeof renderLecturerProjects === 'function') {
                 renderLecturerProjects();
+            } else if (scriptUrl === '/js/project-groups.js' && typeof renderProjectGroups === 'function') {
+                renderProjectGroups();
             }
         };
 
@@ -113,11 +115,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 pageCSS = null;
                 pageScript = '/js/change-password.js';
                 break;
-            case '/lecturer-project.html':
-                contentUrl = '/pages/lecturer-project.html';
+            case '/lecturer-projects.html':
+                contentUrl = '/pages/lecturer-projects.html';
                 pageTitle = 'Quản lý nhóm';
                 pageCSS = null;
-                pageScript = '/js/change-password.js';
+                pageScript = '/js/lecturer-projects.js';
+                break;
+            case '/project-groups.html':
+                contentUrl = '/pages/project-groups.html';
+                pageTitle = 'Quản lý nhóm';
+                pageCSS = null;
+                pageScript = '/js/project-groups.js';
                 break;
 
 
@@ -127,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.title = 'Lỗi 404';
                 return;
         }
+
 
 
         if (!contentElement) return;
@@ -205,6 +214,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (logoutBtn) {
             logoutBtn.addEventListener('click', function () {
                 userPopup.classList.remove('show');
+                localStorage.removeItem('token');
+                window.location.href = '/';
             });
         }
     } else {

@@ -1,0 +1,27 @@
+{
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "mssql": "^11.0.1",
+    "tedious": "^18.6.1"
+  },
+  "name": "subject-assignment-web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Thiendeptrai169/Subject-Assignment.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Thiendeptrai169/Subject-Assignment/issues"
+  },
+  "homepage": "https://github.com/Thiendeptrai169/Subject-Assignment#readme"
+}
