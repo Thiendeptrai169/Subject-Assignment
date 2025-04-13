@@ -49,7 +49,7 @@ function initProfilePage() {
         setText(studentCode, profileData.StudentId);
         setText(fullName, profileData.FullName);
         setText(avatarName, profileData.FullName);
-        setText(dob, profileData.DateOfBirth);        
+        setText(dob, profileData.DateOfBirthFormatted);        
         setText(pob, profileData.PlaceOfBirth);
         setText(gender, profileData.Gender);
         setText(idcard, profileData.IdentityCardNumber);
@@ -68,7 +68,7 @@ function initProfilePage() {
         setText(className, profileData.ClassCode);
         setText(facultyName, profileData.FacultyName);
         setText(majorName, profileData.MajorName);
-        setText(enrollmentDate, profileData.EnrollmentDate); 
+        setText(enrollmentDate, profileData.EnrollmentDateFormatted); 
         setText(trainingSystem, profileData.TrainingSystem); 
         setText(programName, profileData.ProgramName);   
 

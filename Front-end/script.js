@@ -57,6 +57,12 @@ function initMainPage(){
     }
 
     function renderTable(tableBody, data) {
+        const formatDate = (dateStr) => {
+            if (!dateStr) return '';
+            try { return new Date(dateStr).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }); } // Thêm format dd/mm/yyyy
+            catch { return dateStr; }
+        };
+
         tableBody.innerHTML = "";
         if(!data || data.length === 0) {
             tableBody.innerHTML = '<tr><td colspan="11" style="text-align:center; padding: 20px;">Không có dữ liệu phù hợp.</td></tr>';
@@ -71,10 +77,18 @@ function initMainPage(){
         checkbox.id = `check-${index}`;
         checkbox.dataset.index = index; 
 
-        if (item.isRegistered) {
+        const maxGroups = item.soLuongGroupToiDa;       
+        const currentGroups = item.soLuongGroupDaDangKy; 
+
+        if (item.isRegistrationOpen === false) {
             checkbox.disabled = true;
-            row.classList.add('registered-project');
+            row.classList.add('registration-closed');
+            row.classList.add('disabled-row');
         }
+        // if (item.isRegistered) {
+        //     checkbox.disabled = true;
+        //     row.classList.add('registered-project');
+        // }
         
         if (!checkbox.disabled) {
             checkbox.addEventListener('change', handleCheckboxChange);
@@ -103,11 +117,30 @@ function initMainPage(){
         row.appendChild(createCell(item.ten));
         row.appendChild(createCell(item.soLuongSVToiThieu));
         row.appendChild(createCell(item.soLuongSVToiDa));
+        const slotsCell = document.createElement("td");
+        let slotsText = '';
+        if (maxGroups === null) {
+            slotsText = 'Không giới hạn';
+            slotsCell.style.textAlign = 'center';
+        } else if (typeof maxGroups === 'number' && typeof currentGroups === 'number') {
+            const availableSlots = Math.max(0, maxGroups - currentGroups);
+            slotsText = `${currentGroups}/${maxGroups}`;
+            if (availableSlots === 0) {
+                slotsCell.style.color = 'red';
+                slotsCell.style.fontWeight = 'bold';
+            }
+            slotsCell.style.textAlign = 'center';
+        } else {
+            slotsText = 'N/A';
+            slotsCell.style.textAlign = 'center';
+        }
+        slotsCell.textContent = slotsText;
+        row.appendChild(slotsCell);
         row.appendChild(createCell(item.nguoiTao));
         row.appendChild(createCell(item.monHoc));
         row.appendChild(createCell(item.lop));
-        row.appendChild(createCell(item.ngayBatDau));
-        row.appendChild(createCell(item.ngayKetThuc));
+        row.appendChild(createCell(formatDate(item.ngayBatDau)));
+        row.appendChild(createCell(formatDate(item.ngayKetThuc)));
         row.appendChild(createCell(item.moTa));
 
         tableBody.appendChild(row);
@@ -151,6 +184,24 @@ function initMainPage(){
                 groupInfoForm.style.display = 'block';
                 subresBtn.style.display = 'flex';
                 row.classList.add('selected-row');
+                const minStudents = parseInt(selectedTopic.soLuongSVToiThieu, 10);
+                const maxStudents = parseInt(selectedTopic.soLuongSVToiDa, 10);
+                memberCountSelect.innerHTML = "";
+                const placeholderOption = document.createElement("option");
+                placeholderOption.value = "";
+                placeholderOption.textContent = "Chọn số lượng"; 
+                placeholderOption.disabled = true;
+                placeholderOption.selected = true;
+                memberCountSelect.appendChild(placeholderOption);
+                for (let i = minStudents; i <= maxStudents; i++) {
+                    const option = document.createElement("option");
+                    option.value = i;
+                    option.textContent = i;
+                    memberCountSelect.appendChild(option);
+                }
+                memberCountSelect.disabled = false;
+
+
                 document.getElementById("group-name").value = "";
                 document.getElementById("member-count").value = "";
                 memberFields.innerHTML = "";
@@ -208,7 +259,9 @@ function initMainPage(){
         if (!totalMembersStr || isNaN(parseInt(totalMembersStr)) || parseInt(totalMembersStr) <= 0) {
             return alert("Vui lòng chọn số lượng thành viên hợp lệ!");
         }
-    
+        
+        
+        
         const totalMembers = parseInt(totalMembersStr);
         const enteredStudentIds = new Set();
         try { 
@@ -308,14 +361,15 @@ function initMainPage(){
                     ten: item.ProjectName,
                     soLuongSVToiThieu: item.MinStudents,
                     soLuongSVToiDa: item.MaxStudents,
-                    trangThai: item.Status,
+                    soLuongGroupToiDa: item.MaxRegisteredGroups,
+                    soLuongGroupDaDangKy: item.CurrentRegisteredGroups,
                     nguoiTao: item.LecturerName,
                     monHoc: item.SubjectName,
                     lop: item.ClassCode,
-                    ngayBatDau: item.StartDate?.split('T')[0],
-                    ngayKetThuc: item.EndDate?.split('T')[0],
+                    ngayBatDau: item.RegistrationStartDate?.split('T')[0],
+                    ngayKetThuc: item.RegistrationEndDate?.split('T')[0],
                     moTa: item.Description || '',
-                    isRegistered: item.IsRegistered 
+                    isRegistrationOpen: item.isRegistrationOpen 
                 }));
                 renderTable(tableBody1, mainPageData);
             })

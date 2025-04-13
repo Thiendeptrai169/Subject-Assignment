@@ -133,6 +133,19 @@ CREATE TABLE Subjects (
     ExamType NVARCHAR(20) CHECK (ExamType IN (N'LÝ THUYẾT', N'THỰC HÀNH', N'ÐỒ ÁN')) DEFAULT N'LÝ THUYẾT'
 );
 
+CREATE TABLE SubjectSemesterRegistrations (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    SubjectId INT NOT NULL,
+    SemesterId INT NOT NULL,
+    RegistrationStartDate DATE NULL, 
+    RegistrationEndDate DATE NULL,  
+    
+    CONSTRAINT FK_SubjectSemesterReg_Subject FOREIGN KEY (SubjectId) REFERENCES Subjects(Id),
+    CONSTRAINT FK_SubjectSemesterReg_Semester FOREIGN KEY (SemesterId) REFERENCES Semesters(Id),
+    CONSTRAINT UQ_SubjectSemesterReg UNIQUE (SubjectId, SemesterId) -- Đảm bảo mỗi môn trong 1 kỳ chỉ có 1 dòng
+);
+GO
+
 
 
 CREATE TABLE LecturerSubjects (
@@ -170,6 +183,10 @@ CREATE TABLE SubjectProjects (
     SubjectId INT NOT NULL FOREIGN KEY REFERENCES Subjects(Id),
     ClassId INT NOT NULL FOREIGN KEY REFERENCES Class(Id),
 	SemesterId INT NOT NULL FOREIGN KEY REFERENCES Semesters(Id)
+	MaxRegisteredGroups INT NULL,      
+    CurrentRegisteredGroups INT NOT NULL DEFAULT 0; 
+    RegistrationStartDate DATE NULL,      
+    RegistrationEndDate DATE NULL;       
     UNIQUE (ProjectId, SubjectId, ClassId, SemesterId)
 );
 
@@ -178,7 +195,7 @@ CREATE TABLE SubjectProjects (
 CREATE TABLE StudentGroups (
     Id INT PRIMARY KEY IDENTITY,
     LeaderID INT NOT NULL ,
-    SubjectProjectsId INT FOREIGN KEY REFERENCES SubjectProjects(Id) NOT NULL UNIQUE,
+    SubjectProjectsId INT FOREIGN KEY REFERENCES SubjectProjects(Id) NOT NULL,
     GroupStatus NVARCHAR(30) CHECK (GroupStatus IN (N'CHƯA BÁO CÁO', N'ÐÃ BÁO CÁO')) DEFAULT N'CHƯA BÁO CÁO' NOT NULL,
     PresentationOrder INT NOT NULL,
     PresentationDate DATETIME,

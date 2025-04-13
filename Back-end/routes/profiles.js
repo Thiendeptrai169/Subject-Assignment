@@ -55,6 +55,13 @@ router.get('/', async (req,res) =>{
              userProfileData.CourseYear = null;
         }
 
+        if(userProfileData.DateOfBirth instanceof Date){
+            userProfileData.DateOfBirthFormatted = userProfileData.DateOfBirth.toLocaleDateString('vi-VN', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        }  else {
+            userProfileData.DateOfBirthFormatted = userProfileData.DateOfBirth;
+       }
+
+
         //count AcademicTerm and MaxDurationYears
         if (enrollmentYear && userProfileData.ExpectedDurationYears) {
             userProfileData.AcademicTerm = `${enrollmentYear} - ${enrollmentYear + userProfileData.ExpectedDurationYears}`;
