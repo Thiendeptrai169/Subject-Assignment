@@ -32,7 +32,8 @@ const subjectRoutes = require('./routes/subjects');
 const semesterRoutes = require('./routes/semesters');
 const myGroupRoutes = require('./routes/my-groups');
 const myGroupDetailRoutes = require('./routes/my-group-detail');
-const lecturerProjectsRoutes = require('./routes/lecturerProjects');
+const lecturerProjectsRoutes = require('./routes/lecturer-projects');
+const projectGroupsRoutes = require('./routes/project-groups');
 app.use('/api/projects', projectRoutes);
 app.use('/api/classes', classRoutes);
 app.use('/api/subjects', subjectRoutes);
@@ -40,6 +41,7 @@ app.use('/api/semesters', semesterRoutes);
 app.use('/api/my-groups', myGroupRoutes);
 app.use('/api/my-group-detail', myGroupDetailRoutes);
 app.use('/api/lecturer-projects', lecturerProjectsRoutes);
+app.use('/api/project-groups', projectGroupsRoutes);
 // Route bảo vệ (dữ liệu JSON)
 app.get('/protected', (req, res) => {
     res.json({
@@ -108,8 +110,8 @@ app.post('/login', async (req, res) => {
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
-        // const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        // console.log('Decoded token:', decoded);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log('Decoded token:', decoded);
 
 
         console.log('Login successful:', username);

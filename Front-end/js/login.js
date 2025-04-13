@@ -22,10 +22,16 @@ document.getElementById('cms_bm_frm_login').addEventListener('submit', async (ev
         if (!response.ok) {
             throw new Error(data.message || 'Có lỗi xảy ra');
         }
+        // Xóa toàn bộ nếu không lưu gì quan trọng khác
+        localStorage.clear();
 
         // Lưu token vào localStorage
+        // localStorage.setItem('token', data.token);
+        // console.log('Token saved:', data.token);
         localStorage.setItem('token', data.token);
-        console.log('Token saved:', data.token);
+        localStorage.setItem('role', data.role);
+
+
 
         // Kiểm tra token đã được lưu
         const savedToken = localStorage.getItem('token');
