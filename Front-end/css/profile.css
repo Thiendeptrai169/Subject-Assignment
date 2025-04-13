@@ -1,0 +1,231 @@
+/* CSS cho Profile Page - phù hợp với style chung của web */
+
+/* Các style cho container profile - điều chỉnh width và margin */
+#page-content .profile-container {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+  width: 100%;
+  max-width: 100%; /* Đảm bảo container chiếm toàn bộ chiều rộng */
+  box-sizing: border-box;
+  margin: 0; /* Bỏ margin để không bị căn giữa */
+}
+
+#page-content .profile-container h1 {
+  color: #00558d;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+  margin-bottom: 25px;
+  font-size: 22px;
+  text-align: center;
+}
+
+/* Layout thông tin sinh viên */
+#page-content .student-info {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+  gap: 25px;
+  width: 100%; /* Đảm bảo chiếm toàn bộ chiều rộng */
+}
+
+/* Phần avatar */
+#page-content .avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 20px;
+  border: 1px solid #eee;
+  padding: 20px;
+  border-radius: 8px;
+  width: 200px;
+  flex-shrink: 0;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+#page-content .avatar-section img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 3px solid #00558d;
+  padding: 3px;
+  background-color: #fff;
+  object-fit: cover;
+}
+
+#page-content .avatar-section p {
+  font-weight: bold;
+  color: #333;
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+#page-content .avatar-section button.remove-button {
+  background: none;
+  border: none;
+  color: #dc3545;
+  padding: 5px;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+  margin-top: 10px;
+}
+
+#page-content .avatar-section button.remove-button:hover {
+  color: #a71d2a;
+}
+
+/* Phần dropdown */
+#page-content .dropdown-section {
+  flex: 1;
+  border: 1px solid #ddd;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  background-color: white;
+  min-width: 250px;
+}
+
+#page-content .dropdown-section label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #555;
+  font-size: 14px;
+}
+
+#page-content .dropdown-section p {
+  margin: 0 0 15px 0;
+  padding: 8px 12px;
+  background-color: #f5f7fa;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+/* Các khối thông tin - điều chỉnh width và margin */
+#page-content .student-info-block,
+#page-content .contact-info-block,
+#page-content .course-info-block {
+  margin-bottom: 30px;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  width: 100%; /* Đảm bảo chiếm toàn bộ chiều rộng */
+}
+
+#page-content .info-header {
+  background-color: #00558d;
+  padding: 12px 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+#page-content .info-header h2 {
+  margin: 0;
+  color: white;
+  font-size: 16px;
+  text-align: center;
+  font-weight: bold;
+}
+
+#page-content .info-content {
+  padding: 0;
+  width: 100%; /* Đảm bảo chiếm toàn bộ chiều rộng */
+}
+
+/* Style cho bảng thông tin */
+#page-content .info-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+}
+
+#page-content .info-table tr {
+  border-bottom: 1px solid #eee;
+}
+
+#page-content .info-table tr:last-child {
+  border-bottom: none;
+}
+
+#page-content .info-table td {
+  padding: 12px 15px;
+  vertical-align: middle;
+  font-size: 14px;
+  text-align: left;
+  line-height: 1.5;
+}
+
+#page-content .info-table td:first-child {
+  font-weight: bold;
+  width: 180px;
+  color: #333;
+  background-color: #f5f7fa;
+}
+
+#page-content .info-table td:nth-child(2) {
+  color: #444;
+  padding-left: 25px;
+}
+
+/* Style cho nút cập nhật */
+#page-content .update-button {
+  background-color: #00558d;
+  border: none;
+  color: white;
+  padding: 8px 15px;
+  text-align: center;
+  text-decoration: none;
+  display: block;
+  font-size: 14px;
+  margin: 20px auto;
+  cursor: pointer;
+  border-radius: 5px;
+  width: fit-content;
+  transition: background-color 0.2s ease;
+}
+
+#page-content .update-button:hover {
+  background-color: #003d6b;
+}
+
+/* Điều chỉnh padding của #page-content để phù hợp với layout */
+#page-content {
+  padding: 0px !important; /* Ghi đè padding mặc định */
+  margin-left: 130px;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  #page-content .student-info {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #page-content .avatar-section {
+    width: auto;
+  }
+
+  #page-content .dropdown-section {
+    width: 100%;
+    flex: none;
+  }
+}
+
+@media (max-width: 768px) {
+  #page-content .info-table td {
+    padding: 10px;
+  }
+
+  #page-content .info-table td:first-child {
+    width: 120px;
+  }
+
+  #page-content .info-table td:nth-child(2) {
+    padding-left: 15px;
+  }
+}

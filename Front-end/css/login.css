@@ -1,0 +1,316 @@
+/* @import "bootstrap.min.css?v=12";
+@import "responsive.css?v=13"; */
+/* @import url('fonts.css?v=12'); */
+
+:root {
+    --color-table-bg: rgba(0, 32, 109, 0.85);
+    --color-quay-1: #1b9ad6;
+    --color-quay-2: #0247fe;
+    --color-quay-3: #3d01a4;
+    --color-quay-4: #8601af;
+    --color-quay-5: #a7194b;
+    --color-quay-6: #fd5308;
+    --color-quay-7: #66b032;
+    --color-red: #e20303;
+    --color-text-label: #1b9ad6;
+    --color-text-time: #1e9bd7;
+    --color-row-bg: rgba(225, 225, 225, 0.2);
+    --color-row-thead-bg: #00206d;
+    --dask-blue: #223771;
+    --light-gray: #f0f3fd;
+    --light-blue: #b2c2f0;
+    --light-blue-text: #96aae0;
+    --orange: #f8843d;
+    --sub-menu-text: #5a7adb;
+    --light-blue-bg: #3c5398;
+    --green: #4e8d42;
+    --red: #ff0000;
+}
+
+.color-dask-blue {
+    color: var(--dask-blue) !important;
+}
+
+/*----wrapper-login----------*/
+
+.wrapper {
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+    background-color: var(--dask-blue);
+    /* background-image: url("../images/wrapper-bg.png"); */
+    background-repeat: no-repeat;
+    background-position: bottom left;
+    background-attachment: fixed;
+    display: flex;
+    left: 0;
+    top: 0;
+}
+
+.wrapper-login {
+    background: var(--dask-blue) url("/icon/bg-login.jpg") center bottom no-repeat;
+    background-size: cover;
+}
+
+.content-login {
+    max-width: 1140px;
+    margin: 0px auto;
+}
+
+.logo-Phenikaa-w {
+    margin-top: 50px;
+}
+
+.img-logo-w {
+    max-height: 90px;
+}
+
+.content-form-login {
+    min-width: 500px;
+    background: linear-gradient(to top, var(--light-gray), var(--light-blue));
+    margin-top: 30px;
+    border-radius: 30px;
+}
+
+
+.title-h2 {
+    font-size: 36px;
+    margin-bottom: 16px;
+}
+
+.content-form-login {
+    padding: 80px 60px;
+    margin-top: 40px;
+}
+
+.content-form-login:before {
+    position: absolute;
+    background: url("/icon/login-line-1.png") top center no-repeat;
+    height: 89px;
+    width: 274px;
+    top: -20px;
+    right: -12px;
+    z-index: 1;
+    content: "";
+}
+
+.content-form-login:after {
+    position: absolute;
+    background: url("/icon/login-line-2.png") top center no-repeat;
+    height: 74px;
+    width: 274px;
+    top: -20px;
+    right: -12px;
+    z-index: 1;
+    content: "";
+}
+
+.content-form-login .form-label {
+    font-size: 24px;
+    font-weight: 300;
+    position: absolute;
+    left: 15px;
+    top: 6px;
+}
+
+.form-control {
+    border-radius: 6px;
+    height: 48px;
+    line-height: 48px;
+    font-size: 16px;
+    padding-left: 50px;
+    border: 1px solid #acbeec;
+    margin: 24px 0;
+}
+
+.form-item>input {
+    padding-left: 48px;
+}
+
+.show-pass {
+    font-size: 16px;
+    font-weight: 300;
+    position: absolute;
+    right: 15px;
+    color: #888888;
+    top: 12px;
+}
+
+.hide-pass {
+    font-size: 16px;
+    font-weight: 300;
+    position: absolute;
+    right: 15px;
+    color: #888888;
+    top: 12px;
+}
+
+.hide-pass:hover,
+.show-pass:hover {
+    color: var(--dask-blue);
+}
+
+.btn-login {
+    background: var(--dask-blue);
+    border-color: var(--dask-blue);
+    font-size: 18px;
+    font-weight: 500;
+    text-transform: uppercase;
+    color: #fff;
+    border-radius: 6px;
+    height: 48px;
+    line-height: 39px;
+    width: 100%;
+}
+
+.btn-login {
+    background: var(--dask-blue);
+    font-size: 18px;
+    font-weight: 500;
+    text-transform: uppercase;
+    color: #fff;
+    border-radius: 6px;
+    height: 48px;
+    line-height: 39px;
+    width: 100%;
+}
+
+.btn-google {
+    background: #dd4b39;
+    font-size: 16px;
+    font-weight: 500;
+    color: #fff;
+    border-radius: 6px;
+    height: 48px;
+    line-height: 32px;
+    width: 100%;
+    border: 1px solid #dd4b39;
+}
+
+.btn-google:hover {
+    background: #bd3423;
+    border: 1px solid #bd3423;
+}
+
+.logo-google {
+    height: 20px;
+    margin-top: -2px;
+    margin-right: 5px;
+}
+
+.btn-login:hover {
+    background: var(--orange);
+    border: 1px solid var(--orange);
+}
+
+.forgot-pass,
+.help {
+    font-size: 16px;
+    text-decoration: none;
+    margin-bottom: 8px;
+}
+
+.forgot-pass:hover,
+.help:hover {
+    color: var(--orange);
+}
+
+.or-login {
+    margin: 30px 0px 20px 0px;
+    text-align: center;
+    color: #888;
+    position: relative;
+    font-size: 16px;
+}
+
+.or-login:before {
+    position: absolute;
+    height: 1px;
+    width: 30%;
+    background: #cccccc;
+    top: 12px;
+    right: 0px;
+    z-index: 1;
+    content: "";
+}
+
+.or-login:after {
+    position: absolute;
+    height: 1px;
+    width: 30%;
+    background: #cccccc;
+    top: 12px;
+    left: 0px;
+    z-index: 1;
+    content: "";
+}
+
+.btn-microsoft {
+    background: #004185;
+    font-size: 16px;
+    font-weight: 500;
+    color: #fff;
+    border-radius: 6px;
+    height: 48px;
+    line-height: 32px;
+    width: 100%;
+    border: 1px solid #004185;
+    margin-top: 20px;
+}
+
+/* teacher login */
+
+.teach-login {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.teach-login .login-form {
+    padding: 20px;
+    position: relative;
+}
+
+.teach-login .login-form .content-login {
+    max-width: 500px;
+    width: 100%;
+}
+
+.teach-login-slider {
+    width: 100%;
+    height: 100%;
+}
+
+.teach-login-slider img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.teach-login-slider * {
+    height: 100%;
+}
+
+.teach-login .copyright {
+    text-align: center;
+    bottom: 30px;
+    font-size: 14px;
+    line-height: 20px;
+    padding: 20px;
+    margin: 0;
+    position: absolute;
+    display: flex;
+    width: calc(100% - 40px);
+    display: flex;
+    justify-content: center;
+}
+
+.teach-login .copyright p {
+    max-width: 650px;
+    margin: 0;
+}
+
+.teach-wrapper {
+    background-image: none;
+}
