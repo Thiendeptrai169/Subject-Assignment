@@ -1,15 +1,13 @@
-/* CSS cho Profile Page - phù hợp với style chung của web */
 
-/* Các style cho container profile - điều chỉnh width và margin */
 #page-content .profile-container {
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 25px;
   width: 100%;
-  max-width: 100%; /* Đảm bảo container chiếm toàn bộ chiều rộng */
+  max-width: 100%; 
   box-sizing: border-box;
-  margin: 0; /* Bỏ margin để không bị căn giữa */
+  margin: 0; 
 }
 
 #page-content .profile-container h1 {
@@ -21,16 +19,16 @@
   text-align: center;
 }
 
-/* Layout thông tin sinh viên */
+
 #page-content .student-info {
   display: flex;
   flex-wrap: wrap;
   margin-bottom: 30px;
   gap: 25px;
-  width: 100%; /* Đảm bảo chiếm toàn bộ chiều rộng */
+  width: 100%; 
 }
 
-/* Phần avatar */
+
 #page-content .avatar-section {
   display: flex;
   flex-direction: column;
@@ -78,7 +76,7 @@
   color: #a71d2a;
 }
 
-/* Phần dropdown */
+
 #page-content .dropdown-section {
   flex: 1;
   border: 1px solid #ddd;
@@ -106,7 +104,7 @@
   font-size: 14px;
 }
 
-/* Các khối thông tin - điều chỉnh width và margin */
+
 #page-content .student-info-block,
 #page-content .contact-info-block,
 #page-content .course-info-block {
@@ -115,7 +113,7 @@
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  width: 100%; /* Đảm bảo chiếm toàn bộ chiều rộng */
+  width: 100%; 
 }
 
 #page-content .info-header {
@@ -134,10 +132,9 @@
 
 #page-content .info-content {
   padding: 0;
-  width: 100%; /* Đảm bảo chiếm toàn bộ chiều rộng */
+  width: 100%; 
 }
 
-/* Style cho bảng thông tin */
 #page-content .info-table {
   width: 100%;
   border-collapse: collapse;
@@ -172,7 +169,7 @@
   padding-left: 25px;
 }
 
-/* Style cho nút cập nhật */
+
 #page-content .update-button {
   background-color: #00558d;
   border: none;
@@ -193,13 +190,13 @@
   background-color: #003d6b;
 }
 
-/* Điều chỉnh padding của #page-content để phù hợp với layout */
+
 #page-content {
-  padding: 0px !important; /* Ghi đè padding mặc định */
+  padding: 0px !important; 
   margin-left: 130px;
 }
 
-/* Responsive */
+
 @media (max-width: 992px) {
   #page-content .student-info {
     flex-direction: column;

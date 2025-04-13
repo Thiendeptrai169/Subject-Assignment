@@ -62,20 +62,31 @@ router.get('/filter', async (req, res) => {
              )
           SELECT 
             SP.Id AS subjectProjectId,
-            P.ProjectCode, P.ProjectName, P.MinStudents, P.MaxStudents,
-            P.Status, P.StartDate, P.EndDate, P.Description,
+            SP.MaxRegisteredGroups, SP.CurrentRegisteredGroups,
+            SSR.RegistrationStartDate, SSR.RegistrationEndDate,
+            P.ProjectCode, P.ProjectName, P.MinStudents, P.MaxStudents, P.Description,
+            CAST(
+                     CASE
+                         
+                         WHEN SSR.Id IS NULL THEN 0 
+                         WHEN (@currentDate >= SSR.RegistrationStartDate OR SSR.RegistrationStartDate IS NULL)
+                          AND (@currentDate <= SSR.RegistrationEndDate OR SSR.RegistrationEndDate IS NULL)
+                          AND (SP.MaxRegisteredGroups IS NULL OR SP.CurrentRegisteredGroups < SP.MaxRegisteredGroups)
+                         THEN 1 
+                         ELSE 0
+                     END
+                 AS BIT) AS isRegistrationOpen,
             S.SubjectCode, S.SubjectName,
-            C.ClassCode, C.ClassName,
-            L.FullName AS LecturerName,
-            CAST (CASE WHEN SG.Id IS NOT NULL THEN 1 ELSE 0 END AS BIT) AS IsRegistered
+            C.ClassCode,
+            L.FullName AS LecturerName
     
           FROM SubjectProjects SP
           JOIN Projects P ON SP.ProjectId = P.Id
           JOIN Subjects S ON SP.SubjectId = S.Id
           JOIN Class C ON SP.ClassId = C.Id
           JOIN Lecturers L ON P.CreatedByLecturer = L.Id
-          LEFT JOIN StudentGroups SG ON SP.Id = SG.SubjectProjectsId
           JOIN CurrentSemester CS ON SP.SemesterId = CS.Id
+          LEFT JOIN SubjectSemesterRegistrations SSR ON SP.SubjectId = SSR.SubjectId AND SP.SemesterId = SSR.SemesterId
 
           WHERE
             (@subjectCode IS NULL OR S.SubjectCode = @subjectCode)
@@ -108,6 +119,63 @@ router.post('/register', async (req, res) => {
       await poolConnect;
       transaction = new sql.Transaction(pool);
       await transaction.begin();
+
+
+      //check quantity of groupstudent and time register
+      const checkRequest = new sql.Request(transaction);
+        checkRequest.input('SubjectProjectsIdToCheck', sql.Int, subjectProjectId);
+        const checkResult = await checkRequest.query(`
+            SELECT 
+            sp.Id, sp.SubjectId, sp.SemesterId,
+            MaxRegisteredGroups, CurrentRegisteredGroups,
+            ssr.RegistrationStartDate, 
+            ssr.RegistrationEndDate  
+
+            FROM SubjectProjects sp
+            LEFT JOIN SubjectSemesterRegistrations ssr ON sp.SubjectId = ssr.SubjectId AND sp.SemesterId = ssr.SemesterId
+            WHERE Id = @SubjectProjectsIdToCheck; 
+        `);
+
+      if (checkResult.recordset.length === 0) {
+        await transaction.rollback(); 
+        console.log("Transaction rollback: SubjectProject not found.");
+        return res.status(404).json({ message: 'Đề tài không tồn tại.' });
+      }
+
+      const { MaxRegisteredGroups, CurrentRegisteredGroups, RegistrationStartDate, RegistrationEndDate} = checkResult.recordset[0];
+
+      const today  = new Date();
+      today.setHours(0, 0, 0, 0);
+      let isRegistrationOpen = true;
+      let deadlineMessage = "";
+
+      if (RegistrationStartDate && today < new Date(RegistrationStartDate)) {
+        isRegistrationOpen = false;
+        deadlineMessage = `Chưa đến thời gian đăng ký.`;
+      }
+
+      if (isRegistrationOpen && RegistrationEndDate) {
+        const endDateCheck = new Date(RegistrationEndDate);
+        endDateCheck.setHours(23, 59, 59, 999); 
+        if (today > endDateCheck) {
+            isRegistrationOpen = false;
+            deadlineMessage = `Đã hết hạn đăng ký (Hạn chót: ${new Date(RegistrationEndDate).toLocaleDateString('vi-VN')}).`;
+          }
+      }
+  
+      if (!isRegistrationOpen) {
+        await transaction.rollback();
+        console.log("Transaction rollback: Registration period closed.", deadlineMessage);
+        return res.status(400).json({ message: deadlineMessage });
+    }
+
+
+      if(MaxRegisteredGroups !== null && CurrentRegisteredGroups >= MaxRegisteredGroups){
+        await transaction.rollback();
+        console.log("Transaction rollback: Max groups reached.");
+        res.status(404).json({message: `Đề tài này đã đủ số lượng nhóm tối đa (${MaxRegisteredGroups}) đăng ký.`})
+      }
+
 
       //check leaderId & memberId    
       const subjectCheckRequest = transaction.request();
@@ -207,8 +275,16 @@ router.post('/register', async (req, res) => {
             .query(insertMemberQuery);
         }
 
+        const updateRequest = new sql.Request(transaction);
+        updateRequest.input('SubjectProjectsIdToUpdate', sql.Int, subjectProjectId);
+        await updateRequest.query(`
+          UPDATE SubjectProjects
+          SET CurrentRegisteredGroups = CurrentRegisteredGroups + 1
+          WHERE Id = @SubjectProjectsIdToUpdate;
+      `);
+
         await transaction.commit();
-        res.status(200).json('Đăng ký nhóm thành công!');
+        res.status(201).json({ message: 'Đăng ký nhóm thành công!'});
     }
     catch(err){
         if (transaction) await transaction.rollback();

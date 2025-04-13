@@ -41,6 +41,9 @@ CREATE TABLE Major (
     Id INT PRIMARY KEY IDENTITY,
     MajorCode VARCHAR(50) NOT NULL UNIQUE,
     MajorName NVARCHAR(255) NOT NULL UNIQUE,
+	TrainingSystem NVARCHAR(100) NOT NULL,
+	ExpectedDurationYears INT NOT NULL,
+	MaxDurationYears INT NOT NULL,
     FacultyId INT NOT NULL FOREIGN KEY REFERENCES Faculty(Id)
 );
 
@@ -54,12 +57,44 @@ CREATE TABLE Class (
 -- Students and Lecturers
 CREATE TABLE Students (
     Id INT PRIMARY KEY IDENTITY,
-    FullName NVARCHAR(50) NOT NULL,
-    Gender NVARCHAR(10) CHECK (Gender IN (N'NAM', N'NỮ')),
-    DateOfBirth DATE NOT NULL,
-    PhoneNumber VARCHAR(20) NOT NULL,
+    StudentCode VARCHAR(50) NOT NULL UNIQUE,
     ClassId INT NOT NULL FOREIGN KEY REFERENCES Class(Id),
     AccountId VARCHAR(20) NOT NULL FOREIGN KEY REFERENCES Accounts(Id)
+);
+
+CREATE TABLE UserProfiles (
+	Id INT PRIMARY KEY IDENTITY,
+    AccountId VARCHAR(20) NOT NULL UNIQUE,         
+    FullName NVARCHAR(100) NOT NULL,         
+    Gender NVARCHAR(10) CHECK (Gender IN (N'NAM', N'NỮ')), 
+    DateOfBirth DATE NOT NULL,               
+    PlaceOfBirth NVARCHAR(255) NULL,         
+    IdentityCardNumber VARCHAR(20) NULL UNIQUE, 
+    Ethnicity NVARCHAR(50) NULL,             
+    Religion NVARCHAR(50) NULL,              
+    ProfileImageUrl VARCHAR(512) NULL,
+    CONSTRAINT FK_UserProfiles_Accounts FOREIGN KEY (AccountId) REFERENCES Accounts(Id) ON DELETE CASCADE -- Nếu xóa Account thì xóa Profile
+);
+
+CREATE TABLE ContactDetails (
+    Id INT PRIMARY KEY IDENTITY,
+    AccountId VARCHAR(20) NOT NULL UNIQUE,     
+    PhoneNumber VARCHAR(20) NOT NULL,          
+    PersonalEmail VARCHAR(255) NULL UNIQUE,    
+    SchoolEmail VARCHAR(255) NULL UNIQUE,      
+    AddressDetail NVARCHAR(500) NULL,         
+    Ward NVARCHAR(100) NULL,                  
+    District NVARCHAR(100) NULL,              
+    Province NVARCHAR(100) NULL,              
+    Country NVARCHAR(100) NULL,               
+    CONSTRAINT FK_ContactDetails_Accounts FOREIGN KEY (AccountId) REFERENCES Accounts(Id) ON DELETE CASCADE -- Nếu xóa Account thì xóa Contact
+);
+
+CREATE TABLE AcademicDetails (
+	Id INT PRIMARY KEY IDENTITY,
+    StudentId INT NOT NULL UNIQUE,              
+    EnrollmentDate DATE NULL,               
+    CONSTRAINT FK_AcademicDetails_Students FOREIGN KEY (StudentId) REFERENCES Students(Id) ON DELETE CASCADE -- Nếu xóa Student thì xóa Academic Detail
 );
 
 CREATE TABLE Lecturers (
@@ -98,6 +133,19 @@ CREATE TABLE Subjects (
     ExamType NVARCHAR(20) CHECK (ExamType IN (N'LÝ THUYẾT', N'THỰC HÀNH', N'ÐỒ ÁN')) DEFAULT N'LÝ THUYẾT'
 );
 
+CREATE TABLE SubjectSemesterRegistrations (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    SubjectId INT NOT NULL,
+    SemesterId INT NOT NULL,
+    RegistrationStartDate DATE NULL, 
+    RegistrationEndDate DATE NULL,  
+    
+    CONSTRAINT FK_SubjectSemesterReg_Subject FOREIGN KEY (SubjectId) REFERENCES Subjects(Id),
+    CONSTRAINT FK_SubjectSemesterReg_Semester FOREIGN KEY (SemesterId) REFERENCES Semesters(Id),
+    CONSTRAINT UQ_SubjectSemesterReg UNIQUE (SubjectId, SemesterId) -- Đảm bảo mỗi môn trong 1 kỳ chỉ có 1 dòng
+);
+GO
+
 
 
 CREATE TABLE LecturerSubjects (
@@ -135,6 +183,10 @@ CREATE TABLE SubjectProjects (
     SubjectId INT NOT NULL FOREIGN KEY REFERENCES Subjects(Id),
     ClassId INT NOT NULL FOREIGN KEY REFERENCES Class(Id),
 	SemesterId INT NOT NULL FOREIGN KEY REFERENCES Semesters(Id)
+	MaxRegisteredGroups INT NULL,      
+    CurrentRegisteredGroups INT NOT NULL DEFAULT 0; 
+    RegistrationStartDate DATE NULL,      
+    RegistrationEndDate DATE NULL;       
     UNIQUE (ProjectId, SubjectId, ClassId, SemesterId)
 );
 
@@ -143,7 +195,7 @@ CREATE TABLE SubjectProjects (
 CREATE TABLE StudentGroups (
     Id INT PRIMARY KEY IDENTITY,
     LeaderID INT NOT NULL ,
-    SubjectProjectsId INT FOREIGN KEY REFERENCES SubjectProjects(Id) NOT NULL UNIQUE,
+    SubjectProjectsId INT FOREIGN KEY REFERENCES SubjectProjects(Id) NOT NULL,
     GroupStatus NVARCHAR(30) CHECK (GroupStatus IN (N'CHƯA BÁO CÁO', N'ÐÃ BÁO CÁO')) DEFAULT N'CHƯA BÁO CÁO' NOT NULL,
     PresentationOrder INT NOT NULL,
     PresentationDate DATETIME,
@@ -207,10 +259,10 @@ INSERT INTO Accounts (Id, Username, Password, RoleId, IsActive, CreatedAt, Updat
 ('SV007', 'sv7', 'hashed_password', 2, 1, GETDATE(), GETDATE());
 
 -- 3. Major, Class
-INSERT INTO Major (MajorCode, MajorName, FacultyId) VALUES
-('CNPM', N'Công nghệ phần mềm', 1),
-('HTTT', N'Hệ thống thông tin', 1),
-('KTPM', N'Kỹ thuật phần mềm', 1);
+INSERT INTO Major (MajorCode, MajorName, FacultyId, TrainingSystem, ExpectedDurationYears, MaxDurationYears) VALUES
+('CNPM', N'Công nghệ phần mềm', 1, N'Đại học chính quy',5,7),
+('HTTT', N'Hệ thống thông tin', 1,N'Đại học chính quy',5,7)
+('KTPM', N'Kỹ thuật phần mềm', 1, N'Đại học chính quy',5,7);
 
 INSERT INTO Class (ClassCode, ClassName, MajorId) VALUES
 ('D22CQCN01-N', 'D22CQCN01-N', 1),
@@ -303,3 +355,63 @@ INSERT INTO Notification (CreatedAt, CreatedByLecturer, NotificationTitle, Conte
 (GETDATE(), 4, N'Thông báo nghỉ học', N'Tuần này lớp LTW nghỉ do giảng viên bận công tác.'),
 (GETDATE(), 5, N'Thông báo họp khoa CNTT', N'Toàn bộ giảng viên khoa CNTT họp vào lúc 14h00 ngày 09/04/2025 tại phòng họp B2.');
 
+
+INSERT INTO UserProfiles (AccountId, FullName, Gender, DateOfBirth, PlaceOfBirth, IdentityCardNumber, Ethnicity, Religion, ProfileImageUrl)
+VALUES (
+    'SV001',              
+    N'Phạm Hùng Thiên',       
+    N'Nam',                   
+    '2004-09-16',              
+    N'Đồng Nai',              
+    '075204016944',           
+    N'Kinh',                  
+    N'Thiên Chúa',            
+    NULL                      
+);
+
+
+INSERT INTO UserProfiles (AccountId, FullName, Gender, DateOfBirth, PlaceOfBirth, IdentityCardNumber, Ethnicity, Religion, ProfileImageUrl)
+VALUES (
+    'GV001',                   
+    N'Nguyễn Văn A',           
+    N'Nam',                   
+    '1985-03-10',              
+    N'Hà Nội',              
+    '001085123456',           
+    N'Kinh',                  
+    N'Thiên Chúa',                     
+    NULL                      
+);
+
+INSERT INTO UserProfiles (AccountId, FullName, Gender, DateOfBirth, PlaceOfBirth, IdentityCardNumber, Ethnicity, Religion, ProfileImageUrl)
+VALUES (
+    'SV001',              
+    N'Phạm Hùng Thiên',       
+    N'Nam',                   
+    '2004-09-16',              
+    N'Đồng Nai',              
+    '075204016944',           
+    N'Kinh',                  
+    N'Thiên Chúa',            
+    NULL                      
+);
+
+
+INSERT INTO UserProfiles (AccountId, FullName, Gender, DateOfBirth, PlaceOfBirth, IdentityCardNumber, Ethnicity, Religion, ProfileImageUrl)
+VALUES (
+    'GV001',                   
+    N'Nguyễn Văn A',           
+    N'Nam',                   
+    '1985-03-10',              
+    N'Hà Nội',              
+    '001085123456',           
+    N'Kinh',                  
+    N'Thiên Chúa',                     
+    NULL                      
+);
+
+INSERT INTO AcademicDetails (StudentId, EnrollmentDate)
+VALUES (
+    1,                          
+    '2022-09-23'                
+);

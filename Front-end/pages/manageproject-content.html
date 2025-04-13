@@ -1,0 +1,51 @@
+
+<div id="manageproject-title">Quản lý đề tài</div>
+
+
+<div class="manageproject-actions-bar">
+    <button id="create-project-btn"> 
+        <i class="fas fa-plus"></i> Tạo đề tài mới
+    </button>
+</div>
+
+
+<div id="manageproject-filter-box" class="filter-box-manage"> 
+    <label for="filter-subject-manage">Lọc theo môn học:</label>
+    <select id="filter-subject-manage">
+    </select>
+
+    <label for="filter-class-manage">Lọc theo lớp:</label>
+    <select id="filter-class-manage">
+        <option value="">Tất cả</option>
+    </select>
+
+    <label for="filter-subject-manage">Lọc theo môn:</label>
+    <select id="filter-subject-manage">
+        <option value="">Tất cả</option>
+    </select>
+
+    <label for="filter-name-manage">Tìm kiếm theo tên đề tài:</label>
+    <input type="text" id="filter-name-manage" placeholder="Nhập tên đề tài...">
+    <button id="filter-search-btn-manage"><i class="fas fa-search"></i> Tìm</button> 
+</div>
+
+
+<table class="data-table-manageproject">
+    <thead>
+        <tr>
+
+            <th>Mã Đề Tài</th>
+            <th>Tên Đề Tài</th>
+            <th>SL Min</th> 
+            <th>SL Max</th> 
+            <th>Môn Học</th>
+            <th>Lớp</th>
+            <th>Ngày Bắt Đầu</th>
+            <th>Ngày Kết Thúc</th>
+            <th>Mô Tả</th>
+            <th>Hành động</th> 
+        </tr>
+    </thead>
+    <tbody id="lecturer-project-list">
+    </tbody>
+</table>

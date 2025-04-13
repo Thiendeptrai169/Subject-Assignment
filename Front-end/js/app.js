@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
             loadedScripts[scriptUrl] = true;
             if(scriptUrl === '/script.js' && typeof initMainPage === 'function'){
                 initMainPage();
+
             }else if (scriptUrl === '/js/profile-scripts.js' && typeof initMainPage === 'function'){
                 // initProfilePage();
              //add elseif for other scripts
@@ -64,6 +65,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
             // }else if (scriptUrl === '/js/notification.js' && typeof initMainPage === 'function'){
             //     loadNotifications();
             // }
+
 
         };
 
@@ -105,7 +107,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
                 contentUrl = '/pages/profile-content.html';
                 pageTitle = 'Thông tin sinh viên';
                 pageCSS = '/css/profile.css';
-                pageScript = null;
+                pageScript = '/js/profile-script.js';
                 break;
             // add another case here
             case '/notification-content.html':

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { pool, poolConnect } = require('../config/db'); 
+const {sql, pool, poolConnect } = require('../config/db'); 
 
 
 router.get('/', async (req, res) => {
