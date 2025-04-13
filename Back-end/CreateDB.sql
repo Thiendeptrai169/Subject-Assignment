@@ -215,12 +215,25 @@ CREATE TABLE GroupMembers (
 );
 
 --  Notification
-CREATE TABLE Notification (
-    Id INT PRIMARY KEY IDENTITY,
+CREATE TABLE Notifications (
+    Id INT IDENTITY PRIMARY KEY,
     CreatedAt DATETIME NOT NULL,
-    CreatedByLecturer INT NOT NULL FOREIGN KEY REFERENCES Lecturers(Id),
-    NotificationTitle VARCHAR(255),
-    Content NVARCHAR(255)
+    CreatedByLecturer INT FOREIGN KEY REFERENCES Lecturers(Id) NOT NULL,
+    NotificationTitle NVARCHAR(255) NOT NULL,
+    Content NVARCHAR(MAX) NULL,
+    StudentId INT NULL,
+    ClassId INT NULL,
+    GroupId INT NULL,
+    SubjectId INT NULL,
+    RecipientType NVARCHAR(50) NOT NULL
+);
+
+CREATE TABLE NotificationStatus (
+    Id INT IDENTITY PRIMARY KEY,
+    NotificationId INT NOT NULL,
+    StudentId INT FOREIGN KEY REFERENCES Students(Id) NOT NULL,
+    IsRead BIT NOT NULL,
+    FOREIGN KEY (NotificationId) REFERENCES Notifications(Id)
 );
 GO
 --------------------Field for seed data-----------------------
@@ -415,3 +428,34 @@ VALUES (
     1,                          
     '2022-09-23'                
 );
+
+INSERT INTO NotificationStatus (
+    NotificationId, StudentId, IsRead
+)
+VALUES
+(1, 1, 1),
+(1, 2, 0),
+(2, 3, 0),
+(3, 4, 1),
+(4, 3, 0),
+(5, 1, 1),
+(5, 2, 0),
+(130, 1, 1),
+(131, 1, 1),
+(131, 2, 0);
+
+INSERT INTO Notifications (
+    CreatedAt, CreatedByLecturer, NotificationTitle, Content,
+    StudentId, ClassId, GroupId, SubjectId, RecipientType
+)
+VALUES
+('2025-04-08 05:28:32.003', 1, N'licj kclak', N'Nhóm 1 sẽ bảo vệ vào ngày 10/04/2025, phòng A101.', 2, NULL, NULL, NULL, N'student'),
+('2025-04-08 05:28:32.003', 2, N'klajsdlkajsdlkjalksdasqdwqwdqwdqwd', N'Vui lòng', NULL, NULL, 2, NULL, N'group'),
+('2025-04-08 05:28:32.003', 3, N'Yêu cầu nộp báo cáo giữa kỳ', N'Hạn chót nộp báo cáo giữa kỳ là 12/04/2025. Nộp muộn sẽ bị trừ điểm.', NULL, NULL, 5, NULL, N'group'),
+('2025-04-08 05:28:32.003', 4, N'Thông báo nghỉ học', N'Tuần này lớp LTW nghỉ do giảng viên bận công tác.', NULL, NULL, 2, NULL, N'group'),
+('2025-04-08 05:28:32.003', 5, N'Thông báo họp khoa CNTT', N'Toàn bộ giảng viên khoa CNTT họp vào lúc 14h00 ngày 09/04/2025 tại phòng họp B2.', NULL, NULL, 1, NULL, N'group'),
+('2025-04-10 04:08:25.120', 1, N'ádas', N'đá', 1, NULL, NULL, NULL, N'student'),
+('2025-04-10 04:08:38.153', 1, N'oiajhsdasd', N'adlajsnd.ajlskd', 2, NULL, NULL, NULL, N'student'),
+('2025-04-10 04:09:05.333', 1, N'asdasdaskdhg', N'asdasd', 3, NULL, NULL, NULL, N'student'),
+('2025-04-10 05:55:36.527', 1, N'asdioahdas', N'askhgdaskd', 1, NULL, NULL, NULL, N'student'),
+('2025-04-10 05:56:42.750', 1, N'askdjhasd', N'aiusdga', 2, NULL, NULL, NULL, N'student');

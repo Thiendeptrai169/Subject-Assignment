@@ -1,8 +1,28 @@
-let selectedTopic = null;
-let mainPageData = [];
-let isMainPageInitialized = false;
+if (typeof window.selectedTopic === 'undefined') {
+    console.log("DEBUG: Khai báo window.selectedTopic lần đầu.");
+    window.selectedTopic = null;
+} else {
+    console.log("DEBUG: Reset window.selectedTopic về null.");
+    window.selectedTopic = null; 
+}
 
-function initMainPage(){
+if (typeof window.mainPageData === 'undefined') {
+    console.log("DEBUG: Khai báo window.mainPageData lần đầu.");
+    window.mainPageData = [];
+} else {
+    console.log("DEBUG: Reset window.mainPageData về mảng rỗng.");
+    window.mainPageData = []; 
+}
+if (typeof window.isMainPageInitialized === 'undefined') {
+     console.log("DEBUG: Khai báo window.isMainPageInitialized lần đầu.");
+    window.isMainPageInitialized = false;
+} else {
+    console.log("DEBUG: Reset window.isMainPageInitialized về false.");
+    window.isMainPageInitialized = false; 
+}
+window.initMainPage = function(){
+    window.selectedTopic = null;
+    window.isMainPageInitialized = false;
     const tableBody1 = document.getElementById("data-table-1");
     const selectedTopicInfo = document.getElementById("selected-topic-info");
     const selectedTopicText = document.getElementById("selected-topic-text");
@@ -14,6 +34,7 @@ function initMainPage(){
     const memberCountSelect = document.getElementById("member-count");
     const submitBtn = document.getElementById("submit-btn");
     const resetBtn = document.getElementById("reset-btn");
+    
 
     if (!tableBody1 || !filterClass || !filterSubject || !filterNameInput || !memberCountSelect || !submitBtn || !resetBtn || !selectedTopicInfo) {
         console.error("Thiếu các thành phần DOM cần thiết cho Main Page. Không thể khởi tạo.");
@@ -387,8 +408,7 @@ function initMainPage(){
     if(resetBtn) resetBtn.onclick = resetForm;
 
     loadFiltersFromAPI();
-    isMainPageInitialized = true; 
-
+    window.isMainPageInitialized  = true; 
 
 }
  

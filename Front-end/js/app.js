@@ -35,12 +35,13 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
     let loadedScripts = {};
     function loadAndExecuteScript(scriptUrl){
-        const oldScript = document.querySelector(`script[src^="${scriptUrl.split('?')[0]}"]`); // Tìm cả khi có version cũ
-    if (oldScript) {
-        console.log(`Removing existing script tag for: ${scriptUrl}`);
-        oldScript.remove();
-    }
+    //     const oldScript = document.querySelector(`script[src^="${scriptUrl.split('?')[0]}"]`); // Tìm cả khi có version cũ
+    // if (oldScript) {
+    //     console.log(`Removing existing script tag for: ${scriptUrl}`);
+    //     oldScript.remove();
+    // }
 
+        
         const script = document.createElement('script');
         script.src = scriptUrl + '?v=' + Date.now();
         script.defer = true;
@@ -50,12 +51,21 @@ document.addEventListener('DOMContentLoaded', ()=>{
             loadedScripts[scriptUrl] = true;
             if(scriptUrl === '/script.js' && typeof initMainPage === 'function'){
                 initMainPage();
+
             }else if (scriptUrl === '/js/profile-script.js' && typeof initProfilePage === 'function'){
                 initProfilePage();
-            }else if(scriptUrl === '/js/manageproject-script.js' && typeof initManageProjectPage === 'function'){
-                initManageProjectPage();
+          
+            }else if (scriptUrl === '/js/studentnotification.js' && typeof initStudentNotificationPage === 'function'){
+                initStudentNotificationPage();
+            
+            }else if (scriptUrl === '/js/notification.js' && typeof initNotificationPage === 'function'){
+                initNotificationPage();
             }
-            //add)//add elseif for other scripts
+        
+            // }else if (scriptUrl === '/js/notification.js' && typeof initMainPage === 'function'){
+            //     loadNotifications();
+            // }
+
 
         };
 
@@ -76,6 +86,14 @@ document.addEventListener('DOMContentLoaded', ()=>{
         let pageCSS = null;
         let pageScript = null;
 
+        // url = window.location.pathname;
+        
+
+        // Loại bỏ /Front-end nếu có 
+        if (url.startsWith('/Front-end')) {
+            url = url.replace('/Front-end', '');
+        }
+
         switch(url){
             case '/':
             case '/index.html':
@@ -92,8 +110,25 @@ document.addEventListener('DOMContentLoaded', ()=>{
                 pageScript = '/js/profile-script.js';
                 break;
             // add another case here
-
-
+            case '/notification-content.html':
+                contentUrl = '/pages/notification-content.html';
+                pageTitle = 'Trang chủ - Gửi thông báo';
+                pageCSS = '/css/notification.css';
+                pageScript = '/js/notification.js';
+                break;
+            case '/studentnotification-content.html':
+                contentUrl = '/pages/studentnotification-content.html';
+                pageTitle = 'Trang chủ - Xem thông báo';
+                pageCSS = '/css/studentnotification.css';
+                pageScript = '/js/studentnotification.js';
+                break;
+            case '/manageproject.html':
+                contentUrl = '/pages/manageproject-content.html';
+                pageTitle = 'Trang chủ - Quản lý đề tài';
+                pageCSS = '/css/manageproject.css';
+                pageScript = null;
+                break;
+                
             default:
                 console.error(`Không xác định được route cho URL: ${url}`);
                 contentElement.innerHTML = `<p>Trang không tồn tại.</p>`;
@@ -199,5 +234,7 @@ if (userAvatar && userPopup) {
     }else{
         loadContent(initialUrl, false);
     }
+
+    
 
 });
