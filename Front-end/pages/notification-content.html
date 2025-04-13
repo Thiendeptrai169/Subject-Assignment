@@ -1,0 +1,56 @@
+<div class="container">
+    <h2>📨 Gửi Thông Báo</h2>
+
+    <div class="radio-group">
+        <label>
+            <input type="radio" name="action" value="add" checked> Thêm thông báo
+        </label>
+        <label>
+            <input type="radio" name="action" value="edit"> Sửa thông báo
+        </label>
+    </div>
+
+    <div id="editSection" style="display: none;">
+        <label for="notificationId">🔎 Mã Thông Báo:</label>
+        <div class="input-with-button">
+            <input type="text" id="notificationId" placeholder="Nhập mã thông báo" disabled />
+            <button type="button" onclick="fetchNotification()">Tìm</button>
+        </div>
+    </div>
+
+    <form id="notificationForm">
+        <label for="title">✏️ Tiêu đề:</label>
+        <input type="text" id="title" required />
+
+        <label for="content">📝 Nội dung:</label>
+        <textarea id="content" required></textarea>
+
+        <label for = "RecipientType">🎯 Gửi đến:</label>
+        <select id="RecipientType" name="RecipientType">
+            <option value="student">Sinh viên</option>
+            <option value="group">Nhóm</option>
+            <option value="class">Lớp</option>
+            
+        </select>
+
+        <div id="targetSelection"></div>
+
+        <button type="submit">📤 Gửi Thông Báo</button>
+    </form>
+
+    <h2>📋 Thông Báo Đã Đăng</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Mã</th>
+                <th>Tiêu đề</th>
+                <th>Người nhận</th>
+                <th>Thời gian</th>
+                <th>Nội dung</th>
+            </tr>
+        </thead>
+        <tbody id="notificationList">
+            
+        </tbody>
+    </table>
+</div>
