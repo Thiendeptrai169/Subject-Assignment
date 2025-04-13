@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router()
-const { sql, pool, poolConnect } = require('../config/dbconfig');
+const { sql, pool, poolConnect } = require('../config/db');
 const { authenticateToken, authorizeRole } = require('../middleware/auth');
 
 // API: Lấy danh sách nhóm mà sinh viên đã tham gia trong học kỳ hiện tại
