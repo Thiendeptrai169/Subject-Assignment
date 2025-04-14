@@ -60,7 +60,11 @@ document.addEventListener('DOMContentLoaded', ()=>{
             
             }else if (scriptUrl === '/js/notification.js' && typeof initNotificationPage === 'function'){
                 initNotificationPage();
+            }else if(scriptUrl === '/js/manageproject-script.js' && typeof initManageProjectPage === 'function'){
+                initManageProjectPage();
             }
+
+                
         
             // }else if (scriptUrl === '/js/notification.js' && typeof initMainPage === 'function'){
             //     loadNotifications();
@@ -126,8 +130,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
                 contentUrl = '/pages/manageproject-content.html';
                 pageTitle = 'Trang chủ - Quản lý đề tài';
                 pageCSS = '/css/manageproject.css';
-                pageScript = null;
+                pageScript = '/js/manageproject-script.js';
                 break;
+            
                 
             default:
                 console.error(`Không xác định được route cho URL: ${url}`);

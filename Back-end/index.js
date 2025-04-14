@@ -24,6 +24,8 @@ const classRoutes = require('./routes/classes');
 const subjectRoutes = require('./routes/subjects');
 const semesterRoutes = require('./routes/semesters');
 const profileRoutes = require('./routes/profiles');
+const teachingAssignmentRoutes = require('./routes/teachingassignments');
+
 
 app.use('/api/projects', projectRoutes);
 app.use('/api/notifications', notificationRoutes); 
@@ -32,6 +34,7 @@ app.use('/api/classes', classRoutes);
 app.use('/api/subjects', subjectRoutes);
 app.use('/api/semesters', semesterRoutes);
 app.use('/api/profiles', profileRoutes);
+app.use('/api/teachingassignments', teachingAssignmentRoutes);
 
 
 

@@ -133,7 +133,7 @@ router.post('/register', async (req, res) => {
 
             FROM SubjectProjects sp
             LEFT JOIN SubjectSemesterRegistrations ssr ON sp.SubjectId = ssr.SubjectId AND sp.SemesterId = ssr.SemesterId
-            WHERE Id = @SubjectProjectsIdToCheck; 
+            WHERE sp.Id = @SubjectProjectsIdToCheck; 
         `);
 
       if (checkResult.recordset.length === 0) {
@@ -291,6 +291,57 @@ router.post('/register', async (req, res) => {
         console.error('Lỗi khi đăng ký nhóm:', err);
         res.status(500).json('Đăng ký nhóm thất bại!');
     }
+});
+
+
+router.get('/managed', async (req, res) => {
+  const lecturerId = 1;
+  try {
+    await poolConnect;
+    const request = pool.request();
+    request.input('lecturerIdParam', sql.Int, lecturerId);
+    const today = new Date().toISOString().split('T')[0];
+    request.input('currentDateParam', sql.Date, today);
+    const result = await request.query(`
+      WITH CurrentSemester AS (
+           SELECT TOP 1 Id 
+           FROM Semesters
+           WHERE @currentDateParam >= StartDate AND @currentDateParam <= EndDate
+           ORDER BY StartDate DESC
+      )
+
+      SELECT
+          SP.Id AS SubjectProjectId, 
+          P.Id AS ProjectId,        
+          P.ProjectCode, P.ProjectName, P.MinStudents, P.MaxStudents,
+          SP.MaxRegisteredGroups, SP.CurrentRegisteredGroups,
+          SSR.RegistrationStartDate, SSR.RegistrationEndDate,
+          P.Description,
+          S.SubjectCode, S.SubjectName,
+          C.ClassCode
+          --L.FullName AS LecturerName 
+
+      FROM SubjectProjects SP
+      JOIN Projects P ON SP.ProjectId = P.Id AND P.CreatedByLecturer = @lecturerIdParam 
+      JOIN Subjects S ON SP.SubjectId = S.Id
+      JOIN Class C ON SP.ClassId = C.Id
+      --JOIN Lecturers L ON P.CreatedByLecturer = L.Id --Optional
+      --JOIN CurrentSemester CS ON SP.SemesterId = CS.Id 
+      JOIN TeachingAssignments TA ON SP.SubjectId = TA.SubjectId
+      AND SP.ClassId = TA.ClassId AND SP.SemesterId = TA.SemesterId
+      AND TA.LecturerId = @lecturerIdParam
+      LEFT JOIN SubjectSemesterRegistrations SSR ON SP.SubjectId = SSR.SubjectId AND SP.SemesterId = SSR.SemesterId
+
+      ORDER BY S.SubjectName, C.ClassCode, P.ProjectCode; 
+  `);
+  res.json(result.recordset);
+  }catch (err) {
+    console.error('Lỗi khi lấy danh sách đề tài quản lý:', err);
+    res.status(500).json({ message: 'Lỗi server khi lấy danh sách đề tài.', error: err.message });
+  }
+
+
+
 });
 
 
