@@ -1,3 +1,4 @@
+
 document.addEventListener('DOMContentLoaded', ()=>{
     const contentElement = document.getElementById('page-content');
     const sidebar = document.querySelector('.sidebar');
@@ -14,6 +15,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
         }
     
 
+
         const link = document.createElement('link');
         link.rel = 'stylesheet';
         link.href = cssUrl;
@@ -24,9 +26,11 @@ document.addEventListener('DOMContentLoaded', ()=>{
     }
 
     //unload
+
     function unloadPageCSS(){
         const currentCSSLink = document.getElementById('page-specific-css');
         if(currentCSSLink){
+
             document.head.removeChild(currentCSSLink);
             console.log(`Đã gỡ bỏ CSS: ${currentPageCSS}`);
             currentPageCSS = null;
@@ -34,6 +38,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     }
 
     let loadedScripts = {};
+
     function loadAndExecuteScript(scriptUrl){
     //     const oldScript = document.querySelector(`script[src^="${scriptUrl.split('?')[0]}"]`); // Tìm cả khi có version cũ
     // if (oldScript) {
@@ -42,6 +47,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     // }
 
         
+
         const script = document.createElement('script');
         script.src = scriptUrl + '?v=' + Date.now();
         script.defer = true;
@@ -49,6 +55,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
         script.onload = () => {
             console.log(`Đã tải ${scriptUrl}.`);
             loadedScripts[scriptUrl] = true;
+
             if(scriptUrl === '/script.js' && typeof initMainPage === 'function'){
                 initMainPage();
 
@@ -62,6 +69,17 @@ document.addEventListener('DOMContentLoaded', ()=>{
                 initNotificationPage();
             }else if(scriptUrl === '/js/manageproject-script.js' && typeof initManageProjectPage === 'function'){
                 initManageProjectPage();
+            } else if (scriptUrl === '/js/group-page.js' && typeof loadMyGroups === 'function') {
+                loadMyGroups();
+                loadSemester();
+            } else if (scriptUrl === '/js/group-detail.js' && typeof loadGroupDetail === 'function') {
+                loadGroupDetail();
+            } else if (scriptUrl === '/js/lecturer-projects.js' && typeof renderLecturerProjects === 'function') {
+                renderLecturerProjects();
+            } else if (scriptUrl === '/js/project-groups.js' && typeof renderProjectGroups === 'function') {
+                renderProjectGroups();
+            } else if (scriptUrl === '/js/lecturer-subjects.js' && typeof renderLecturerSubject === 'function') {
+                renderLecturerSubject();
             }
 
                 
@@ -69,6 +87,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
             // }else if (scriptUrl === '/js/notification.js' && typeof initMainPage === 'function'){
             //     loadNotifications();
             // }
+
 
 
         };
@@ -82,13 +101,16 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
     const loadContent = async (url, pushState = true) => {
         console.log(`Đang tải nội dung từ ${url}...`);
+
         
+
         unloadPageCSS();
 
         let contentUrl = '';
         let pageTitle = 'Trang Web';
         let pageCSS = null;
         let pageScript = null;
+
 
         // url = window.location.pathname;
         
@@ -99,6 +121,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
         }
 
         switch(url){
+
             case '/':
             case '/index.html':
             case '/mainpage.html':
@@ -111,6 +134,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
                 contentUrl = '/pages/profile-content.html';
                 pageTitle = 'Thông tin sinh viên';
                 pageCSS = '/css/profile.css';
+
                 pageScript = '/js/profile-script.js';
                 break;
             // add another case here
@@ -132,15 +156,51 @@ document.addEventListener('DOMContentLoaded', ()=>{
                 pageCSS = '/css/manageproject.css';
                 pageScript = '/js/manageproject-script.js';
                 break;
-            
+            case '/group-page.html':
+                contentUrl = '/pages/group-page.html';
+                pageTitle = 'Danh sách nhóm';
+                pageCSS = '/css/groups.css';
+                pageScript = '/js/group-page.js';
+                break;
+            case '/group-detail.html':
+                contentUrl = '/pages/group-detail.html';
+                pageTitle = 'Danh sách nhóm';
+                pageCSS = '/css/groups.css';
+                pageScript = '/js/group-detail.js';
+                break;
+            case '/change-password.html':
+                contentUrl = '/pages/change-password.html';
+                pageTitle = 'Đổi mật khẩu';
+                pageCSS = null;
+                pageScript = '/js/change-password.js';
+                break;
+            case '/lecturer-projects.html':
+                contentUrl = '/pages/lecturer-projects.html';
+                pageTitle = 'Quản lý nhóm';
+                pageCSS = '/css/groups.css';
+                pageScript = '/js/lecturer-projects.js';
+                break;
+            case '/project-groups.html':
+                contentUrl = '/pages/project-groups.html';
+                pageTitle = 'Quản lý nhóm';
+                pageCSS = '/css/groups.css';
+                pageScript = '/js/project-groups.js';
+                break;
+            case '/lecturer-subjects.html':
+                contentUrl = '/pages/lecturer-subjects.html';
+                pageTitle = 'Quản lý nhóm';
+                pageCSS = '/css/groups.css';
+                pageScript = '/js/lecturer-subjects.js';
+                break;
                 
+
             default:
                 console.error(`Không xác định được route cho URL: ${url}`);
                 contentElement.innerHTML = `<p>Trang không tồn tại.</p>`;
                 document.title = 'Lỗi 404';
                 return;
         }
-    
+
  
         if(!contentElement) return;
         contentElement.innerHTML = '<p>Đang tải...</p>';
@@ -174,12 +234,16 @@ document.addEventListener('DOMContentLoaded', ()=>{
     //handle click from navbar and sidebar
     const handleNavClick = (e) => {
         const link = e.target.closest('a.sidebar-link, .navbar a, a.popup-nav-link, a.spa-link');
+
         if(link && link.href && link.origin === window.location.origin && !link.href.includes('#')){
+
             e.preventDefault();
             const targetUrl = link.getAttribute('href');
             const currentPath = window.location.pathname;
             const isSamePage = (targetUrl === currentPath || targetUrl === currentPath + '/');
+
             if(!isSamePage){
+
                 loadContent(targetUrl, true);
                 if (link.classList.contains('popup-nav-link')) {
                     const userPopup = document.getElementById('userPopup');
@@ -188,6 +252,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
             }
         }
     };
+
 
     if(sidebar){
         sidebar.addEventListener('click', handleNavClick);
@@ -225,6 +290,7 @@ if (userAvatar && userPopup) {
     console.warn("User avatar or popup element not found in the main shell.");
 }
 
+
     //handle back and forward button
     window.addEventListener('popstate', (e) => {
         const previousUrl = window.location.pathname;
@@ -234,6 +300,7 @@ if (userAvatar && userPopup) {
 
     //load initial content
     const initialUrl = window.location.pathname;
+
     if(initialUrl === '/' || initialUrl === '/index.html'){
         unloadPageCSS();
         loadAndExecuteScript('/script.js');
@@ -244,3 +311,4 @@ if (userAvatar && userPopup) {
     
 
 });
+

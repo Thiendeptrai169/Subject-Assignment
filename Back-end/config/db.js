@@ -8,7 +8,7 @@ const config = {
     database: process.env.DB_NAME,
     options: {
         encrypt: true,
-        trustServerCertificate: true 
+        trustServerCertificate: true
     }
 };
 
@@ -18,7 +18,7 @@ const config = {
 const pool = new sql.ConnectionPool(config);
 const poolConnect = pool.connect();
 
-module.exports ={
+module.exports = {
     sql, pool, poolConnect
 };
 console.log('SERVER:', process.env.DB_SERVER);
