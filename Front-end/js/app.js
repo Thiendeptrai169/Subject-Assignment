@@ -283,6 +283,9 @@ if (userAvatar && userPopup) {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', function() {
             userPopup.classList.remove('show'); 
+            localStorage.removeItem('token');
+            // window.location.remove('token');
+            window.location.href = '/';
         });
     }
 } else {
