@@ -52,8 +52,8 @@ button i {
     top: 0;
     left: 220px; 
     right: 0;
-    margin-left: 31px;
     z-index: 1001; 
+    margin-left: 1px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 

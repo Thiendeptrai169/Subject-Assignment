@@ -35,25 +35,36 @@ app.get('/', (req, res) => {
 //Real routes
 const projectRoutes = require('./routes/projects');
 
-const classRoutes = require('./routes/classes');
-const subjectRoutes = require('./routes/subjects');
-const semesterRoutes = require('./routes/semesters');
+
+
+
 const myGroupRoutes = require('./routes/my-groups');
 const myGroupDetailRoutes = require('./routes/my-group-detail');
 const lecturerProjectsRoutes = require('./routes/lecturer-projects');
 const projectGroupsRoutes = require('./routes/project-groups');
 const lecturerSubjectsRoutes = require('./routes/lecturer-subjects');
+const notificationRoutes = require('./routes/notifications'); 
+const StudentNotificationRoutes = require('./routes/StudentNotifications');
+const classRoutes = require('./routes/classes');
+const subjectRoutes = require('./routes/subjects');
+const semesterRoutes = require('./routes/semesters');
 const profileRoutes = require('./routes/profiles');
-app.use('/api/projects', projectRoutes);
+const teachingAssignmentRoutes = require('./routes/teachingassignments');
+
+app.use('/api/projects',projectRoutes);
+app.use('/api/notifications', notificationRoutes); 
+app.use('/api/StudentNotifications', StudentNotificationRoutes);
 app.use('/api/classes', classRoutes);
 app.use('/api/subjects', subjectRoutes);
 app.use('/api/semesters', semesterRoutes);
+app.use('/api/profiles', profileRoutes);
+app.use('/api/teachingassignments', teachingAssignmentRoutes);
 app.use('/api/my-groups', myGroupRoutes);
 app.use('/api/my-group-detail', myGroupDetailRoutes);
 app.use('/api/lecturer-projects', lecturerProjectsRoutes);
 app.use('/api/project-groups', projectGroupsRoutes);
 app.use('/api/lecturer-subjects', lecturerSubjectsRoutes);
-app.use('/api/profiles', profileRoutes);
+
 
 // Route bảo vệ (dữ liệu JSON)
 app.get('/protected', (req, res) => {
@@ -217,24 +228,9 @@ app.post('/change-password', async (req, res) => {
         console.error('Lỗi đổi mật khẩu:', error.message);
         res.status(500).json({ message: 'Lỗi server' });
     }
-
-const notificationRoutes = require('./routes/notifications'); 
-const StudentNotificationRoutes = require('./routes/StudentNotifications');
-const classRoutes = require('./routes/classes');
-const subjectRoutes = require('./routes/subjects');
-const semesterRoutes = require('./routes/semesters');
-const profileRoutes = require('./routes/profiles');
-const teachingAssignmentRoutes = require('./routes/teachingassignments');
+});
 
 
-app.use('/api/projects', projectRoutes);
-app.use('/api/notifications', notificationRoutes); 
-app.use('/api/StudentNotifications', StudentNotificationRoutes);
-app.use('/api/classes', classRoutes);
-app.use('/api/subjects', subjectRoutes);
-app.use('/api/semesters', semesterRoutes);
-app.use('/api/profiles', profileRoutes);
-app.use('/api/teachingassignments', teachingAssignmentRoutes);
 
 
 

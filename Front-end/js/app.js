@@ -134,7 +134,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
                 contentUrl = '/pages/profile-content.html';
                 pageTitle = 'Thông tin sinh viên';
                 pageCSS = '/css/profile.css';
-
                 pageScript = '/js/profile-script.js';
                 break;
             // add another case here
