@@ -148,12 +148,23 @@ GO
 
 
 
-CREATE TABLE LecturerSubjects (
+--CREATE TABLE LecturerSubjects (
+   -- Id INT PRIMARY KEY IDENTITY,
+   -- LecturerId INT NOT NULL FOREIGN KEY REFERENCES Lecturers(Id),
+   -- SubjectId INT NOT NULL FOREIGN KEY REFERENCES Subjects(Id),
+   -- CONSTRAINT UQ_LecturerSubject UNIQUE (LecturerId, SubjectId)
+--);
+
+CREATE TABLE TeachingAssignments (
     Id INT PRIMARY KEY IDENTITY,
     LecturerId INT NOT NULL FOREIGN KEY REFERENCES Lecturers(Id),
     SubjectId INT NOT NULL FOREIGN KEY REFERENCES Subjects(Id),
-    CONSTRAINT UQ_LecturerSubject UNIQUE (LecturerId, SubjectId)
-);
+    ClassId INT NOT NULL FOREIGN KEY REFERENCES Class(Id),
+    SemesterId INT NOT NULL FOREIGN KEY REFERENCES Semesters(Id),
+    CONSTRAINT UQ_TeachingAssignment UNIQUE (LecturerId, SubjectId, ClassId, SemesterId) 
+)
+
+
 
 CREATE TABLE Enrollment (
     Id INT PRIMARY KEY IDENTITY,
@@ -172,8 +183,6 @@ CREATE TABLE Projects (
     MinStudents INT NOT NULL,
     MaxStudents INT NOT NULL,
     CreatedByLecturer INT NOT NULL FOREIGN KEY REFERENCES Lecturers(Id),
-    StartDate DATE,
-    EndDate DATE,
     Description NVARCHAR(255)
 );
 
@@ -185,8 +194,8 @@ CREATE TABLE SubjectProjects (
 	SemesterId INT NOT NULL FOREIGN KEY REFERENCES Semesters(Id)
 	MaxRegisteredGroups INT NULL,      
     CurrentRegisteredGroups INT NOT NULL DEFAULT 0; 
-    RegistrationStartDate DATE NULL,      
-    RegistrationEndDate DATE NULL;       
+    --RegistrationStartDate DATE NULL,      
+    --RegistrationEndDate DATE NULL,     
     UNIQUE (ProjectId, SubjectId, ClassId, SemesterId)
 );
 
@@ -320,9 +329,14 @@ INSERT INTO FacultyMembers (FacultyId, LecturerId, JoinedAt, Role) VALUES
 (1, 7, GETDATE(), N'THÀNH VIÊN');
 
 -- 8. LecturerSubjects
-INSERT INTO LecturerSubjects (LecturerId, SubjectId) VALUES
-(1, 1), (2, 2), (3, 3), (4, 4),
-(5, 1), (6, 2), (7, 3);
+--INSERT INTO LecturerSubjects (LecturerId, SubjectId) VALUES
+--(1, 1), (2, 2), (3, 3), (4, 4),
+--(5, 1), (6, 2), (7, 3);
+
+INSERT INTO TeachingAssignments (LecturerId, SubjectId, ClassId, SemesterId) VALUES 
+(1,1,1,3),
+(2,2,1,3),
+(3,3,1,3)
 
 -- 9. Semesters
 INSERT INTO Semesters (AcademicYear, Semester, StartDate, EndDate) VALUES
