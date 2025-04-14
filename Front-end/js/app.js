@@ -145,6 +145,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
             if(!respone.ok) throw new Error(`HTTP error! status: ${respone.status}, không thể tải ${contentUrl}`);
             const html = await respone.text();
             contentElement.innerHTML = html;
+            // console.log(contentElement.innerHTML)
             document.title = pageTitle;
 
             if(pageCSS){
