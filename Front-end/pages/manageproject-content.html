@@ -10,9 +10,6 @@
 
 
 <div id="manageproject-filter-box" class="filter-box-manage"> 
-    <label for="filter-subject-manage">Lọc theo môn học:</label>
-    <select id="filter-subject-manage">
-    </select>
 
     <label for="filter-class-manage">Lọc theo lớp:</label>
     <select id="filter-class-manage">
@@ -38,8 +35,9 @@
             <th>Tên Đề Tài</th>
             <th>SL Min</th> 
             <th>SL Max</th> 
+            <th>Slot</th>
             <th>Môn Học</th>
-            <th>Lớp</th>
+            <th>Lớp</th> 
             <th>Ngày Bắt Đầu</th>
             <th>Ngày Kết Thúc</th>
             <th>Mô Tả</th>
@@ -47,5 +45,37 @@
         </tr>
     </thead>
     <tbody id="lecturer-project-list">
+        <tr>
+            <td>DT01</td>
+            <td>Đề tài về Web bán hàng</td>
+            <td>1</td>
+            <td>5</td>
+            <td>3</td>
+            <td>Lập Trình Web</td>
+            <td>D22CQCN01-N</td>
+            <td>2025-03-01</td>
+            <td>2025-03-15</td>
+            <td>Xây dựng website bán hàng cơ bản...</td>
+            <td class="action-buttons">
+                <button class="btn-edit" title="Sửa đề tài"><i class="fas fa-edit"></i></button>
+                <button class="btn-delete" title="Xóa đề tài"><i class="fas fa-trash-alt"></i></button>
+            </td>
+        </tr>
+         <tr>
+            <td>DT02</td>
+            <td>Phân tích Hệ thống Quản lý</td>
+            <td>1</td>
+            <td>3</td>
+            <td>3</td>
+            <td>Phân tích TK Hệ thống</td>
+            <td>D22CQPT01-N</td>
+            <td>2025-03-05</td>
+            <td>2025-03-20</td>
+            <td>Phân tích và thiết kế UML cho...</td>
+             <td class="action-buttons">
+                <button class="btn-edit" title="Sửa đề tài"><i class="fas fa-edit"></i></button>
+                <button class="btn-delete" title="Xóa đề tài"><i class="fas fa-trash-alt"></i></button>
+            </td>
+        </tr>
     </tbody>
 </table>

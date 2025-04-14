@@ -28,7 +28,7 @@
                 <img src="icon/Thiên-fotor-2025032615838.png" alt="User Avatar" class="avatar-mini" id="userAvatar">
                 <div class="user-popup" id="userPopup">
                     <div class="user-info">
-                        <p>Phạm Hùng Thiên-N22DCCN180</p>
+                        <p id="userInfo">Đang tải thông tin...</p>
                     </div>
                     <div class="popup-menu">
                         <a href="/profile.html" class="menu-item">
@@ -59,8 +59,8 @@
         <div class="sidebar">
             <div class="sidebar-header">
                 <img src="icon/Thiên-fotor-2025032615838.png" alt="User Avatar" class="avatar-large">
-                <span>Phạm Hùng Thiên</span>
-                <span>N22DCCN180</span>
+                <span id="sidebar-name">Phạm Hùng Thiên</span>
+                <span id="sidebar-id">N22DCCN180</span>
             </div>
             <div class="sidebar-section">
                 <h3 id="sidebar-title">Trang cá nhân</h3>
@@ -74,7 +74,7 @@
                         Thông tin cá nhân
                     </button>
                 </a>
-                <a href="/notifications.html" class="sidebar-link"> <!--Hoàng fill link-->
+                <a href="/notifications.html" class="sidebar-link">
                     <button class="sidebar-btn">
                         <svg id="icon-sidebar" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24"
                             height="24">
@@ -84,7 +84,6 @@
                         Thông báo
                     </button>
                 </a>
-                <!-- Link quay về trang chủ -->
                 <a href="/" class="sidebar-link">
                     <button class="sidebar-btn">
                         <svg id="icon-sidebar" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -98,7 +97,6 @@
             </div>
             <div class="sidebar-section">
                 <h3>Tra cứu thông tin</h3>
-                <!-- Thêm link/nút khác nếu có -->
                 <a href="#" id="group-management-link" class="sidebar-link">
                     <button class="sidebar-btn">
                         <svg id="icon-sidebar" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24"
@@ -177,21 +175,77 @@
     </div>
 
     <script>
-        // Định tuyến "Quản lý nhóm" tùy theo vai trò
-        document.addEventListener("DOMContentLoaded", () => {
-            const role = localStorage.getItem("role"); // ví dụ lưu role trong localStorage
-            console.log(role);
-            const link = document.getElementById("group-management-link");
-            if (role === "1") {
-                link.href = "/lecturer-projects.html";
-            } else if (role === "2") {
-                link.href = "/group-page.html";
+        // Hàm lấy thông tin người dùng từ API
+        async function fetchUserInfo() {
+            const userInfoElement = document.getElementById('userInfo');
+            const sidebarName = document.getElementById('sidebar-name');
+            const sidebarId = document.getElementById('sidebar-id');
+            const token = localStorage.getItem('token');
+
+            if (!userInfoElement || !sidebarName || !sidebarId) {
+                console.error('Không tìm thấy userInfo, sidebar-name hoặc sidebar-id element');
+                return;
             }
+
+            if (!token) {
+                userInfoElement.textContent = 'Chưa đăng nhập';
+                sidebarName.textContent = 'Chưa đăng nhập';
+                sidebarId.textContent = '';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/profiles', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        userInfoElement.textContent = 'Chỉ sinh viên được xem thông tin';
+                        sidebarName.textContent = 'Không có quyền';
+                        sidebarId.textContent = '';
+                        return;
+                    }
+                    throw new Error('Không thể lấy thông tin người dùng');
+                }
+
+                const data = await response.json();
+                const { studentName, studentId } = data;
+                if (studentName && studentId) {
+                    userInfoElement.textContent = `${studentName} - ${studentId}`;
+                    sidebarName.textContent = studentName;
+                    sidebarId.textContent = studentId;
+                } else {
+                    userInfoElement.textContent = 'Thông tin không đầy đủ';
+                    sidebarName.textContent = 'Thông tin không đầy đủ';
+                    sidebarId.textContent = '';
+                }
+            } catch (error) {
+                console.error('Lỗi khi lấy thông tin người dùng:', error);
+                userInfoElement.textContent = 'Lỗi tải thông tin';
+                sidebarName.textContent = 'Lỗi tải thông tin';
+                sidebarId.textContent = '';
+            }
+        }
+        // Định tuyến "Quản lý nhóm" tùy theo vai trò và gọi API user info
+        document.addEventListener('DOMContentLoaded', () => {
+            const role = localStorage.getItem('role');
+            console.log('Role:', role);
+            const link = document.getElementById('group-management-link');
+            if (role === '1') {
+                link.href = '/lecturer-subjects.html';
+            } else if (role === '2') {
+                link.href = '/group-page.html';
+            }
+
+            // Gọi API để cập nhật thông tin người dùng
+            fetchUserInfo();
         });
     </script>
 
     <script src="/js/app.js"></script>
-    <!-- <script src="script.js"></script> -->
 </body>
 
 </html>

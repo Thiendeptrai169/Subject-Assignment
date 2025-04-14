@@ -37,6 +37,16 @@
     margin-bottom: 0.75rem;
 }
 
+#subject-list .group-header,
+#project-list .group-header {
+    padding-left: 1.75rem;
+}
+
+#subject-list .info-row p,
+#project-list .info-row p {
+    margin-bottom: 0;
+}
+
 .group-name {
     font-size: 1.25rem;
     margin: 0;

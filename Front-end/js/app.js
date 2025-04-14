@@ -61,6 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderLecturerProjects();
             } else if (scriptUrl === '/js/project-groups.js' && typeof renderProjectGroups === 'function') {
                 renderProjectGroups();
+            } else if (scriptUrl === '/js/lecturer-subjects.js' && typeof renderLecturerSubject === 'function') {
+                renderLecturerSubject();
             }
         };
 
@@ -118,14 +120,20 @@ document.addEventListener('DOMContentLoaded', () => {
             case '/lecturer-projects.html':
                 contentUrl = '/pages/lecturer-projects.html';
                 pageTitle = 'Quản lý nhóm';
-                pageCSS = null;
+                pageCSS = '/css/groups.css';
                 pageScript = '/js/lecturer-projects.js';
                 break;
             case '/project-groups.html':
                 contentUrl = '/pages/project-groups.html';
                 pageTitle = 'Quản lý nhóm';
-                pageCSS = null;
+                pageCSS = '/css/groups.css';
                 pageScript = '/js/project-groups.js';
+                break;
+            case '/lecturer-subjects.html':
+                contentUrl = '/pages/lecturer-subjects.html';
+                pageTitle = 'Quản lý nhóm';
+                pageCSS = '/css/groups.css';
+                pageScript = '/js/lecturer-subjects.js';
                 break;
 
 
