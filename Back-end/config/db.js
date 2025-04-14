@@ -12,6 +12,8 @@ const config = {
     }
 };
 
+// console.log(config);
+
 //create a connection pool
 const pool = new sql.ConnectionPool(config);
 const poolConnect = pool.connect();

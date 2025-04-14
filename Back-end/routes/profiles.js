@@ -1,4 +1,5 @@
 const express = require('express');
+
 const router = express.Router();
 const { sql, pool, poolConnect } = require('../config/db');
 const { authenticateToken, authorizeRole } = require('../middleware/auth');
@@ -37,34 +38,30 @@ router.get('/', authenticateToken, authorizeRole([2]), async (req, res) => {
             .input('studentId', sql.Int, studentId)
             .input('accountId', sql.VarChar(20), accountId)
             .query(`
-                SELECT 
-                    A.Id AS AccountId,
-                    A.Username,
-                    A.RoleId,
-                    R.RoleName,
-                    UP.FullName AS studentName,
-                    S.Id AS studentId,
-                    C.ClassCode,
-                    M.MajorName,
-                    M.MajorCode,
-                    M.TrainingSystem,
-                    M.ExpectedDurationYears,
-                    M.MaxDurationYears,
-                    F.FacultyName,
-                    F.FacultyCode,
-                    AD.EnrollmentDate,
-                    CD.PhoneNumber,
-                    CD.Email,
-                    UP.DateOfBirth
+                
+            SELECT 
+                A.Id AS AccountId, A.Username, A.RoleId, R.RoleName,
+                UP.*,
+                CD.*,
+                S.Id AS StudentId,    
+                C.ClassCode,
+                M.MajorName, M.MajorCode, M.TrainingSystem, M.ExpectedDurationYears, M.MaxDurationYears,
+                F.FacultyName, F.FacultyCode,
+                AD.EnrollmentDate,
+                L.Id AS LecturerId
+
                 FROM Accounts A
                 LEFT JOIN Roles R ON A.RoleId = R.RoleId
                 LEFT JOIN UserProfiles UP ON A.Id = UP.AccountId
                 LEFT JOIN ContactDetails CD ON A.Id = CD.AccountId
+
                 LEFT JOIN Students S ON S.AccountId = A.Id
+
                 LEFT JOIN Class C ON S.ClassId = C.Id
                 LEFT JOIN Major M ON C.MajorId = M.Id
                 LEFT JOIN Faculty F ON M.FacultyId = F.Id
                 LEFT JOIN AcademicDetails AD ON S.Id = AD.StudentId
+
                 WHERE A.Id = @accountId AND S.Id = @studentId;
             `);
 
@@ -107,11 +104,13 @@ router.get('/', authenticateToken, authorizeRole([2]), async (req, res) => {
             userProfileData.AcademicTerm = `${enrollmentYear} - ${enrollmentYear + userProfileData.ExpectedDurationYears}`;
         } else {
             userProfileData.AcademicTerm = null;
+
         }
 
         if (enrollmentYear && userProfileData.MaxDurationYears) {
             userProfileData.MaxTerm = `${enrollmentYear} - ${enrollmentYear + userProfileData.MaxDurationYears}`;
         } else {
+
             userProfileData.MaxTerm = null;
         }
 
@@ -128,6 +127,7 @@ router.get('/', authenticateToken, authorizeRole([2]), async (req, res) => {
             accountId: req.user?.accountId
         });
         res.status(500).json({ message: 'Lỗi server khi lấy thông tin hồ sơ' });
+
     }
 });
 

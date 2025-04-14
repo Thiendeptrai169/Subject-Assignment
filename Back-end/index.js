@@ -1,10 +1,15 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
+
 const path = require('path');
 const bcrypt = require('bcrypt');
 const fs = require('fs');
 const { sql, pool, poolConnect } = require('./config/db');
+
+require('dotenv').config();
+
+
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -13,12 +18,14 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+
 // Serve static files
 app.use(express.static(path.join(__dirname, '../Front-end'), { index: false }));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../Front-end/pages/login.html'));
 });
+
 
 //Route test
 // app.get('/', (req,res) => {
@@ -27,6 +34,7 @@ app.get('/', (req, res) => {
 
 //Real routes
 const projectRoutes = require('./routes/projects');
+
 const classRoutes = require('./routes/classes');
 const subjectRoutes = require('./routes/subjects');
 const semesterRoutes = require('./routes/semesters');
@@ -209,7 +217,29 @@ app.post('/change-password', async (req, res) => {
         console.error('Lỗi đổi mật khẩu:', error.message);
         res.status(500).json({ message: 'Lỗi server' });
     }
-});
+
+const notificationRoutes = require('./routes/notifications'); 
+const StudentNotificationRoutes = require('./routes/StudentNotifications');
+const classRoutes = require('./routes/classes');
+const subjectRoutes = require('./routes/subjects');
+const semesterRoutes = require('./routes/semesters');
+const profileRoutes = require('./routes/profiles');
+const teachingAssignmentRoutes = require('./routes/teachingassignments');
+
+
+app.use('/api/projects', projectRoutes);
+app.use('/api/notifications', notificationRoutes); 
+app.use('/api/StudentNotifications', StudentNotificationRoutes);
+app.use('/api/classes', classRoutes);
+app.use('/api/subjects', subjectRoutes);
+app.use('/api/semesters', semesterRoutes);
+app.use('/api/profiles', profileRoutes);
+app.use('/api/teachingassignments', teachingAssignmentRoutes);
+
+
+
+
+
 
 //Fallback Route cho SPA
 app.get(/^\/(?!api).*/, (req, res) => {
