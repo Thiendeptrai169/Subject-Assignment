@@ -183,8 +183,6 @@ CREATE TABLE Projects (
     MinStudents INT NOT NULL,
     MaxStudents INT NOT NULL,
     CreatedByLecturer INT NOT NULL FOREIGN KEY REFERENCES Lecturers(Id),
-    StartDate DATE,
-    EndDate DATE,
     Description NVARCHAR(255)
 );
 
@@ -196,8 +194,8 @@ CREATE TABLE SubjectProjects (
 	SemesterId INT NOT NULL FOREIGN KEY REFERENCES Semesters(Id)
 	MaxRegisteredGroups INT NULL,      
     CurrentRegisteredGroups INT NOT NULL DEFAULT 0; 
-    RegistrationStartDate DATE NULL,      
-    RegistrationEndDate DATE NULL;       
+    --RegistrationStartDate DATE NULL,      
+    --RegistrationEndDate DATE NULL,     
     UNIQUE (ProjectId, SubjectId, ClassId, SemesterId)
 );
 
