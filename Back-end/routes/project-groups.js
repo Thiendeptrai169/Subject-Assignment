@@ -20,7 +20,8 @@ router.get('/:projectId', authenticateToken, authorizeRole([1]), async (req, res
                     SG.GroupStatus,
                     SG.TotalMember
                 FROM StudentGroups SG
-                WHERE SG.ProjectId = @projectId
+                JOIN SubjectProjects SP ON SG.SubjectProjectsId = SP.Id
+                WHERE SP.ProjectId = @projectId
             `);
 
         res.json(result.recordset);

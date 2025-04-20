@@ -32,11 +32,13 @@ router.get('/', authenticateToken, authorizeRole([1]), async (req, res) => {
                SELECT
                 P.Id AS ProjectId,
                 P.ProjectName,
-                P.StartDate,
-                P.EndDate,
+                P.ProjectCode,
+                P.Description,
+                SP.SubjectId,
                 S.SubjectName
             FROM Projects P
-            JOIN Subjects S ON S.Id = P.SubjectId
+            JOIN SubjectProjects SP ON SP.ProjectId = P.Id
+            JOIN Subjects S ON S.Id = SP.SubjectId
             WHERE P.CreatedByLecturer = @lecturerId
             `);
 

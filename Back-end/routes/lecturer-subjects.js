@@ -46,9 +46,10 @@ router.get('/', authenticateToken, authorizeRole([1]), async (req, res) => {
                     s.Id AS SubjectId,
                     s.SubjectCode,
                     s.SubjectName,
-                    COUNT(p.Id) AS TotalProjects
-                FROM Projects p
-                INNER JOIN Subjects s ON s.Id = p.SubjectId
+                    COUNT(sp.Id) AS TotalProjects
+                FROM Subjects s
+                JOIN SubjectProjects sp ON sp.SubjectId = s.Id
+                JOIN Projects p ON p.Id = sp.ProjectId
                 WHERE p.CreatedByLecturer = @lecturerId
                 GROUP BY s.Id, s.SubjectCode, s.SubjectName
             `);
