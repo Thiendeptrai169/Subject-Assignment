@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { pool, poolConnect } = require('../config/db');
+const {sql, pool, poolConnect } = require('../config/db');
 
 // ✅ GET /api/StudentNotifications/unread-count/:studentId
 router.get('/unread-count/:studentId', async (req, res) => {
@@ -9,7 +9,7 @@ router.get('/unread-count/:studentId', async (req, res) => {
 
   try {
     const result = await pool.request()
-      .input('studentId', studentId)
+      .input('studentId',sql.Int, studentId)
       .query(`
         SELECT COUNT(*) AS UnreadCount
         FROM NotificationStatus
@@ -33,12 +33,12 @@ router.get('/:studentId', async (req, res) => {
 
   try {
     const result = await pool.request()
-      .input('studentId', studentId)
+      .input('studentId', sql.Int, studentId)
       .query(`
         
-DECLARE @groupId INT = NULL;  -- Nếu chọn nhóm, truyền mã nhóm vào đây, NULL nếu không chọn nhóm
-DECLARE @classId INT = NULL;  -- Nếu chọn lớp, truyền mã lớp vào đây, NULL nếu không chọn lớp
-DECLARE @subjectId INT = NULL;  -- Nếu chọn môn học, truyền mã môn vào đây, NULL nếu không chọn môn học
+--DECLARE @groupId INT = NULL;  -- Nếu chọn nhóm, truyền mã nhóm vào đây, NULL nếu không chọn nhóm
+--DECLARE @classId INT = NULL;  -- Nếu chọn lớp, truyền mã lớp vào đây, NULL nếu không chọn lớp
+--DECLARE @subjectId INT = NULL;  -- Nếu chọn môn học, truyền mã môn vào đây, NULL nếu không chọn môn học
 
 SELECT n.Id AS NotificationId, 
        n.NotificationTitle, 
@@ -56,16 +56,16 @@ LEFT JOIN Class c ON s.ClassId = c.Id
 LEFT JOIN Subjects sub ON n.SubjectId = sub.Id
 WHERE ns.StudentId = @studentId
   -- Kiểm tra điều kiện cho mã sinh viên (nếu có)
-  AND (@studentId IS NOT NULL AND ns.StudentId = @studentId)
+ -- AND (@studentId IS NOT NULL AND ns.StudentId = @studentId)
   
   -- Kiểm tra điều kiện cho mã nhóm (nếu có)
-  AND (@groupId IS NULL OR gm.GroupId = @groupId)
+  --AND (@groupId IS NULL OR gm.GroupId = @groupId)
   
   -- Kiểm tra điều kiện cho mã lớp (nếu có)
-  AND (@classId IS NULL OR s.ClassId = @classId)
+  --AND (@classId IS NULL OR s.ClassId = @classId)
   
   -- Kiểm tra điều kiện cho mã môn học (nếu có)
-  AND (@subjectId IS NULL OR n.SubjectId = @subjectId)
+  --AND (@subjectId IS NULL OR n.SubjectId = @subjectId)
   
 ORDER BY n.CreatedAt DESC;
       `);
@@ -96,9 +96,9 @@ router.put('/:notificationId/read', async (req, res) => {
 
   try {
     await pool.request()
-      .input('notificationId', notificationId)
-      .input('studentId', studentId)
-      .input('IsRead', 1)
+      .input('notificationId',sql.Int, notificationId)
+      .input('studentId', sql.Int, studentId)
+      .input('IsRead',sql.Int, 1)
       .query(`
         UPDATE NotificationStatus
         SET IsRead = @IsRead

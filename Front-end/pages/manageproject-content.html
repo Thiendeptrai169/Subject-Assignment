@@ -79,3 +79,64 @@
         </tr>
     </tbody>
 </table>
+
+<div class="popup-overlay" style="display: none;"></div>
+<div class="create-project-popup" style="display: none;">
+    <div class="popup-header">
+        <button class="close-popup-btn"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="popup-tabs" >
+        <button class="tab-btn active" data-tab="tab-create-edit">Tạo/ Sửa đề tài</button>
+        <button class="tab-btn" data-tab="tab-assign">Gán đề tài cho lớp/môn</button>
+    </div>
+
+    <div class="popup-content" id = "tab-create-edit">
+        <form id="create-project-form">
+            <div class="form-group">
+                <label for="project-name">Tên đề tài</label>
+                <input type="text" id="project-name" class="form-control" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group half">
+                    <label for="min-students">SL SV Tối thiểu</label>
+                    <input type="number" id="min-students" class="form-control" min="1" required>
+                </div>
+
+                <div class="form-group half">
+                    <label for="max-students">SL SV Tối đa</label>
+                    <input type="number" id="max-students" class="form-control" min="1" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="project-description">Mô tả</label>
+                <textarea id="project-description" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button id="submit" class="btn btn-primary">Thêm</button>
+                <button id="update" style="display:none;">Cập nhật</button>
+                <button type="button" id="cancel-edit-btn" class="btn btn-secondary" 
+                style="display:none;">Hủy Sửa</button>
+            </div>
+        </form>
+        <div class="project-existing">
+
+        </div>
+    </div>
+
+    <!-- <hr>
+    <h4>Chọn đề tài có sẵn để sửa:</h4>  -->
+
+    
+</div>
+
+<div class="popup-tab-content" id="tab-assign">
+    
+    <p style="padding: 20px; text-align: center;">(Giao diện gán đề tài cho lớp/môn)</p>
+    
+</div>
+    
+</div>

@@ -2,35 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { sql, pool, poolConnect } = require('../config/db');
 
-//GET /api/projects
-// router.get('/', async (req, res) => {
-//     try{
-//         await poolConnect;
-//         const request = pool.request();
-//         const result = await request.query(`
-//             SELECT 
-//               p.Id,
-//               p.ProjectCode,
-//               p.ProjectName,
-//               p.MinStudents,
-//               p.MaxStudents,
-//               p.Status,
-//               p.StartDate,
-//               p.EndDate,
-//               p.Description,
-//               s.SubjectName,
-//               c.ClassCode,
-//               l.FullName AS LecturerName
-//             FROM Projects p
-//             JOIN Subjects s ON p.SubjectId = s.Id
-//             JOIN Class c ON SP.ClassId = c.Id
-//             JOIN Lecturers l ON p.CreatedByLecturer = l.Id
-//           `);
-//         res.json(result.recordset);
-//     }catch (err){
-//         res.status(500).send(err.message);
-//     }
-// });
+
 
 //router for filter
 router.get('/filter', async (req, res) => {
@@ -275,13 +247,13 @@ router.post('/register', async (req, res) => {
             .query(insertMemberQuery);
         }
 
-        const updateRequest = new sql.Request(transaction);
-        updateRequest.input('SubjectProjectsIdToUpdate', sql.Int, subjectProjectId);
-        await updateRequest.query(`
-          UPDATE SubjectProjects
-          SET CurrentRegisteredGroups = CurrentRegisteredGroups + 1
-          WHERE Id = @SubjectProjectsIdToUpdate;
-      `);
+      //   const updateRequest = new sql.Request(transaction);
+      //   updateRequest.input('SubjectProjectsIdToUpdate', sql.Int, subjectProjectId);
+      //   await updateRequest.query(`
+      //     UPDATE SubjectProjects
+      //     SET CurrentRegisteredGroups = CurrentRegisteredGroups + 1
+      //     WHERE Id = @SubjectProjectsIdToUpdate;
+      // `);
 
         await transaction.commit();
         res.status(201).json({ message: 'Đăng ký nhóm thành công!'});
@@ -330,7 +302,7 @@ router.get('/managed', async (req, res) => {
       JOIN TeachingAssignments TA ON SP.SubjectId = TA.SubjectId
       AND SP.ClassId = TA.ClassId AND SP.SemesterId = TA.SemesterId
       AND TA.LecturerId = @lecturerIdParam
-      LEFT JOIN SubjectSemesterRegistrations SSR ON SP.SubjectId = SSR.SubjectId AND SP.SemesterId = SSR.SemesterId
+      LEFT JOIN SubjectSemesterRegistrations SSR ON SP.SubjectId = SSR.SubjectId AND SP.SemesterId = SSR.SemesterId AND SP.ClassId = SSR.ClassId
 
       ORDER BY S.SubjectName, C.ClassCode, P.ProjectCode; 
   `);
@@ -340,9 +312,141 @@ router.get('/managed', async (req, res) => {
     res.status(500).json({ message: 'Lỗi server khi lấy danh sách đề tài.', error: err.message });
   }
 
-
-
 });
+
+
+router.post('/managed', async (req, res) => {
+  const lecturerId = 1;
+
+  const {
+        ProjectName, MinStudents, MaxStudents, Description,
+        SubjectId, ClassId,MaxRegisteredGroups
+  } = req.body;
+
+  if (!ProjectName || MinStudents === undefined || MaxStudents === undefined || !SubjectId || !ClassId ) {
+      return res.status(400).json({ message: 'Thiếu thông tin bắt buộc: Mã/Tên ĐT, SL SV Min/Max, Môn học, Lớp học.' });
+  }
+  if (isNaN(parseInt(MinStudents)) || isNaN(parseInt(MaxStudents)) || +MinStudents <= 0 || +MaxStudents < +MinStudents) {
+       return res.status(400).json({ message: 'Số lượng sinh viên tối thiểu/tối đa không hợp lệ.' });
+   }
+   if (MaxRegisteredGroups !== undefined && MaxRegisteredGroups !== null && (isNaN(parseInt(MaxRegisteredGroups)) || +MaxRegisteredGroups <= 0)) {
+      return res.status(400).json({ message: 'Số lượng nhóm tối đa không hợp lệ.' });
+  }
+
+
+  let transaction;
+  try {
+      await poolConnect; 
+      transaction = new sql.Transaction(pool);
+      await transaction.begin();
+      console.log("Transaction began for creating project.");
+
+      // 1. Lấy SemesterId hiện tại
+      const semesterRequest = new sql.Request(transaction);
+      const today = new Date().toISOString().split('T')[0];
+      semesterRequest.input('currentDateParam', sql.Date, today);
+      const semesterResult = await semesterRequest.query('SELECT TOP 1 Id FROM Semesters WHERE @currentDateParam >= StartDate AND @currentDateParam <= EndDate ORDER BY StartDate DESC');
+      if (semesterResult.recordset.length === 0) {
+          await transaction.rollback();
+          return res.status(400).json({ message: 'Không xác định được học kỳ hiện tại để tạo đề tài.' });
+      }
+      const currentSemesterId = semesterResult.recordset[0].Id;
+
+      // 2. Kiểm tra giảng viên có được dạy môn/lớp/kỳ này không (bắt buộc)
+      const assignmentRequest = new sql.Request(transaction);
+      const assignmentResult = await assignmentRequest
+          .input('lecturerIdParam', sql.Int, lecturerId)
+          .input('subjectIdParam', sql.Int, SubjectId)
+          .input('classIdParam', sql.Int, ClassId)
+          .input('semesterIdParam', sql.Int, currentSemesterId)
+          .query(`SELECT TOP 1 Id FROM TeachingAssignments
+                  WHERE LecturerId = @lecturerIdParam
+                    AND SubjectId = @subjectIdParam
+                    AND ClassId = @classIdParam
+                    AND SemesterId = @semesterIdParam`);
+      if (assignmentResult.recordset.length === 0) {
+         await transaction.rollback();
+         return res.status(403).json({ message: 'Bạn không được phân công dạy môn/lớp này trong kỳ hiện tại để tạo đề tài.' });
+      }
+
+      //Gen projectcode
+      const codeGenRequest = new sql.Request(transaction);
+      const codeResult = await codeGenRequest.query(`
+        SELECT TOP 1 ProjectCode FROM Projects
+        WHERE ProjectCode LIKE 'DT%'
+        ORDER BY TRY_CAST(SUBSTRING(ProjectCode, 3, LEN(ProjectCode)) AS INT) DESC
+      `);
+      let newProjectCode = 'DT01';
+      if (codeResult.recordset.length > 0) {
+        const lastCode = codeResult.recordset[0].ProjectCode; 
+        const lastNumber = parseInt(lastCode.replace('DT', '')) || 0;
+        const nextNumber = lastNumber + 1;
+        newProjectCode = `DT${nextNumber.toString().padStart(2, '0')}`; 
+    }
+
+
+      // 3. INSERT vào Projects
+      const projectRequest = new sql.Request(transaction);
+      const projectResult = await projectRequest
+          .input('pProjectCode', sql.VarChar, newProjectCode)
+          .input('pProjectName', sql.NVarChar, ProjectName)
+          .input('pMinStudents', sql.Int, MinStudents)
+          .input('pMaxStudents', sql.Int, MaxStudents)
+          .input('pCreatedByLecturer', sql.Int, lecturerId)
+          .input('pDescription', sql.NVarChar, Description)
+          .query(`
+              INSERT INTO Projects (ProjectCode, ProjectName, MinStudents, MaxStudents, CreatedByLecturer, Description)
+              OUTPUT INSERTED.Id
+              VALUES (@pProjectCode, @pProjectName, @pMinStudents, @pMaxStudents, @pCreatedByLecturer, @pDescription);
+          `);
+      const newProjectId = projectResult.recordset[0].Id;
+      console.log("DEBUG: Created Project ID:", newProjectId);
+
+      // 4. INSERT vào SubjectProjects
+      const spRequest = new sql.Request(transaction);
+      const spResult = await spRequest
+          .input('spProjectId', sql.Int, newProjectId)
+          .input('spSubjectId', sql.Int, SubjectId)
+          .input('spClassId', sql.Int, ClassId)
+          .input('spSemesterId', sql.Int, currentSemesterId)
+          .input('spMaxRegisteredGroups', sql.Int, MaxRegisteredGroups) // Cho phép NULL
+          .input('spRegStartDate', sql.Date, RegistrationStartDate)     // Cho phép NULL
+          .input('spRegEndDate', sql.Date, RegistrationEndDate)       // Cho phép NULL
+          .input('spStartDate', sql.Date, StartDate)                   // Cho phép NULL
+          .input('spEndDate', sql.Date, EndDate)                       // Cho phép NULL
+          .query(`
+              INSERT INTO SubjectProjects (
+                  ProjectId, SubjectId, ClassId, SemesterId, MaxRegisteredGroups,
+                  CurrentRegisteredGroups, -- Mặc định là 0
+                  RegistrationStartDate, RegistrationEndDate, StartDate, EndDate
+              )
+              OUTPUT INSERTED.* -- Trả về đầy đủ bản ghi vừa tạo
+              VALUES (
+                  @spProjectId, @spSubjectId, @spClassId, @spSemesterId, @spMaxRegisteredGroups,
+                  0, @spRegStartDate, @spRegEndDate, @spStartDate, @spEndDate
+              );
+          `);
+
+      await transaction.commit();
+      console.log("Transaction committed. New SubjectProject created:", spResult.recordset[0]);
+      res.status(201).json(spResult.recordset[0]); // Trả về SubjectProject mới
+
+  } catch (err) {
+      console.error('Lỗi khi tạo đề tài:', err);
+      if (transaction && transaction._aborted === false && transaction._closed === false) {
+          try { await transaction.rollback(); console.log("Transaction rolled back."); }
+          catch (rbErr) { console.error("Rollback error:", rbErr); }
+      }
+      if (err.number === 2627 && err.message.includes('Projects')) { // Lỗi UNIQUE trên Projects
+          res.status(409).json({ message: `Mã đề tài "${ProjectCode}" đã tồn tại.` });
+      } else if (err.number === 2627 && err.message.includes('SubjectProjects')) { // Lỗi UNIQUE trên SubjectProjects
+          res.status(409).json({ message: 'Đề tài này đã được gán cho môn học/lớp/học kỳ này rồi.' });
+      } else {
+          res.status(500).json({ message: 'Lỗi server khi tạo đề tài.', error: err.message });
+      }
+  }
+});
+
 
 
 module.exports = router;

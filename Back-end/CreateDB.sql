@@ -8,7 +8,7 @@ CREATE TABLE Roles (
 );
 
 CREATE TABLE Rights (
-    RightId INT PRIMARY KEY IDENTITY,
+    RightId INT PRIMARY KEY IDENTITY,s
     RightName NVARCHAR(255) NOT NULL UNIQUE,
     RightDesc TEXT
 );
@@ -134,9 +134,10 @@ CREATE TABLE Subjects (
 );
 
 CREATE TABLE SubjectSemesterRegistrations (
-    Id INT PRIMARY KEY IDENTITY(1,1),
+    Id INT PRIMARY KEY IDENTITY,
     SubjectId INT NOT NULL,
     SemesterId INT NOT NULL,
+	ClassId INT NOT NULL,
     RegistrationStartDate DATE NULL, 
     RegistrationEndDate DATE NULL,  
     
@@ -473,3 +474,7 @@ VALUES
 ('2025-04-10 04:09:05.333', 1, N'asdasdaskdhg', N'asdasd', 3, NULL, NULL, NULL, N'student'),
 ('2025-04-10 05:55:36.527', 1, N'asdioahdas', N'askhgdaskd', 1, NULL, NULL, NULL, N'student'),
 ('2025-04-10 05:56:42.750', 1, N'askdjhasd', N'aiusdga', 2, NULL, NULL, NULL, N'student');
+
+USE 
+SELECT *
+FROM SubjectProjects
