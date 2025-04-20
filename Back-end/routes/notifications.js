@@ -2,12 +2,13 @@ const express = require('express');
 const router = express.Router();
 
 const { sql, pool, poolConnect } = require('../config/db');
+const { authenticateToken, authorizeRole } = require('../middleware/auth');
 
 //  GET - 
-router.get('/', async (req, res) => {
+router.get('/', authenticateToken, authorizeRole([1]), async (req, res) => {
     try {
         await poolConnect;
-        
+
         const request = pool.request();
         const result = await request.query(`
             SELECT * FROM Notifications ORDER BY CreatedAt DESC
@@ -18,7 +19,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', authenticateToken, authorizeRole([1]), async (req, res) => {
     const {
         NotificationTitle,
         Content,
@@ -73,7 +74,7 @@ router.post('/', async (req, res) => {
                     GETDATE()
                 )
             `);
-console.log("📝 Thông báo đã được tạo, ID:", insertResult.recordset[0]?.Id);
+        console.log("📝 Thông báo đã được tạo, ID:", insertResult.recordset[0]?.Id);
         const newNotificationId = insertResult.recordset[0].Id;
 
         // Hàm lấy danh sách sinh viên theo RecipientType
@@ -126,7 +127,7 @@ console.log("📝 Thông báo đã được tạo, ID:", insertResult.recordset[
 });
 
 // 3. PUT - 
-router.put('/:id', async (req, res) => {
+router.put('/:id', authenticateToken, authorizeRole([1]), async (req, res) => {
     try {
         await poolConnect;
         const {

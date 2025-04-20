@@ -23,18 +23,21 @@ router.get('/group-detail/:groupId', async (req, res) => {
                     SG.PresentationDate,
                     P.ProjectName,
                     SJ.SubjectName,
-                    ST.FullName,
-                    ST.DateOfBirth,
-                    ST.Id AS StudentId,
+                    UP.FullName,
+                    UP.DateOfBirth,
+                    S.Id AS StudentId,
                     C.ClassName,
                     GM.StudentRole
                 FROM StudentGroups SG
-                JOIN Projects P ON SG.ProjectId = P.Id
-                JOIN Subjects SJ ON P.SubjectId = SJ.Id
+                JOIN SubjectProjects SP ON SG.SubjectProjectsId = SP.Id
+                JOIN Projects P ON SP.ProjectId = P.Id
+                JOIN Subjects SJ ON SP.SubjectId = SJ.Id
                 JOIN GroupMembers GM ON SG.Id = GM.GroupId
-                JOIN Students ST ON GM.StudentId = ST.Id
-                JOIN Class C ON ST.ClassId = C.Id
-                WHERE SG.Id = @groupId;
+                JOIN Students S ON GM.StudentId = S.Id
+                JOIN Class C ON S.ClassId = C.Id
+                JOIN Accounts A ON S.AccountId = A.Id
+                JOIN UserProfiles UP ON A.Id = UP.AccountId
+                WHERE SG.Id = @groupId
             `);
 
         const records = result.recordset;
