@@ -1,201 +1,262 @@
+(function() {
+    console.log('Notification script loaded');
 
+    let editingNotificationId = null;
 
-
-function initNotificationPage(){
-// Hàm gửi thông báo
-    async function initNotification() {
-        const isEditMode = document.querySelector('input[name="action"]:checked').value === "edit";
-        const notificationId = document.getElementById("notificationId").value.trim();
-        const title = document.getElementById("title").value.trim();
-        const content = document.getElementById("content").value.trim();
-        const recipientType = document.getElementById("RecipientType").value;
-
-        const mainInput = document.querySelector("#targetSelection input#mainInput");
-        const subjectInput = document.getElementById("subjectInput");
-        const mainValue = mainInput?.value.trim();
-        const subjectValue = subjectInput?.value.trim();
-
-        let body = {
-            NotificationTitle: title,
-            Content: content,
-            RecipientType: recipientType,
-            StudentId: null,
-            GroupId: null,
-            ClassId: null,
-            SubjectId: null,
-            CreatedByLecturer: 1 // tạm hard-code ID giảng viên
-        };
-
-        if (recipientType === "student") {
-            if (!mainValue) return alert("Vui lòng nhập mã sinh viên!");
-            body.StudentId = parseInt(mainValue);
-        } else if (recipientType === "group") {
-            if (!mainValue) return alert("Vui lòng nhập mã nhóm!");
-            body.GroupId = parseInt(mainValue);
-        } else if (recipientType === "class") {
-            if (!mainValue || !subjectValue) return alert("Vui lòng nhập mã lớp và mã môn!");
-            body.ClassId = parseInt(mainValue);
-            body.SubjectId = parseInt(subjectValue);
+    // Kiểm tra đăng nhập và quyền
+    function checkAuth() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login.html';
+            return false;
         }
-
         try {
-            const url = 'http://localhost:3000/api/notifications';
-            const res = await fetch(
-                isEditMode && notificationId ? `${url}/${notificationId}` : url,
-                {
-                    method: isEditMode && notificationId ? "PUT" : "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(body)
-                }
-            );
-
-            if (!res.ok) throw new Error(`Lỗi API: ${res.status} ${res.statusText}`);
-            const data = await res.json();
-
-            alert(isEditMode ? "✔️ Đã sửa thông báo." : "🎉 Thông báo đã được gửi!");
-            document.getElementById("notificationForm").reset();
-            updateTargetSelection();
-            loadNotifications();  // Tải lại danh sách thông báo sau khi gửi thành công
-        } catch (err) {
-            alert("❌ Lỗi khi gửi thông báo: " + err.message);
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            if (payload.role !== 1) {
+                window.location.href = '/login.html';
+                return false;
+            }
+            return true;
+        } catch {
+            window.location.href = '/login.html';
+            return false;
         }
     }
 
-    // Đổi chế độ Add/Edit
-    document.querySelectorAll('input[name="action"]').forEach(radio => {
-        radio.addEventListener("change", function () {
-            const isEdit = this.value === "edit";
-            document.getElementById("editSection").style.display = isEdit ? "block" : "none";
-            document.getElementById("notificationId").disabled = !isEdit;
+    // Gọi API có token
+    async function fetchWithAuth(url, options = {}) {
+        const token = localStorage.getItem('token');
+        if (!token) throw new Error('Chưa đăng nhập');
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                ...(options.headers || {}),
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
         });
-    });
-
-    // Tải thông báo cần chỉnh sửa
-    async function fetchNotification() {
-        const notificationId = document.getElementById("notificationId").value.trim();
-        if (!notificationId) return alert("Vui lòng nhập ID thông báo.");
-
-        try {
-            const res = await fetch('http://localhost:3000/api/notifications');
-            const data = await res.json();
-            const noti = data.find(n => n.Id == notificationId);
-
-            if (!noti) return alert("Không tìm thấy thông báo!");
-
-            document.getElementById("title").value = noti.NotificationTitle;
-            document.getElementById("content").value = noti.Content;
-            document.getElementById("RecipientType").value = noti.RecipientType;
-
-            updateTargetSelection();  // Cập nhật lại form khi nhận thông báo từ server
-
-            setTimeout(() => {
-                if (noti.RecipientType === "student") {
-                    document.getElementById("mainInput").value = noti.StudentId;
-                } else if (noti.RecipientType === "group") {
-                    document.getElementById("mainInput").value = noti.GroupId;
-                } else if (noti.RecipientType === "class") {
-                    document.getElementById("mainInput").value = noti.ClassId;
-                    document.getElementById("subjectInput").value = noti.SubjectId;
-                }
-            }, 50);
-
-            alert("Đã tải thông báo để chỉnh sửa!");
-        } catch (err) {
-            alert("Lỗi khi tải thông báo: " + err.message);
-        }
+        if (!response.ok) throw new Error(await response.text());
+        return response.json();
     }
 
-    // Hiển thị trường nhập phù hợp với loại người nhận
+    // Hiển thị đúng các trường chọn
     function updateTargetSelection() {
-        const container = document.getElementById("targetSelection");
-        container.innerHTML = "";
-
-        const recipientType = document.getElementById("RecipientType").value;
-        let labelText = "", placeholder = "", showSubject = false;
-
-        if (recipientType === "student") {
-            labelText = "Id Sinh viên:";
-            placeholder = "VD: 1,2,3...";
-        } else if (recipientType === "group") {
-            labelText = "Id nhóm:";
-            placeholder = "VD: 1,2,3...";
-        } else if (recipientType === "class") {
-            labelText = "Id lớp:";
-            placeholder = "VD: 1,2,3...";
-            showSubject = true;
-        }
-
-        const label = document.createElement("label");
-        label.innerText = labelText;
-
-        const input = document.createElement("input");
-        input.type = "text";
-        input.placeholder = placeholder;
-        input.id = "mainInput";
-
-        container.appendChild(label);
-        container.appendChild(input);
-
-        if (showSubject) {
-            const subjectLabel = document.createElement("label");
-            subjectLabel.innerText = "Id môn học:";
-
-            const subjectInput = document.createElement("input");
-            subjectInput.type = "text";
-            subjectInput.id = "subjectInput";
-            subjectInput.placeholder = "VD: 1,2,3...";
-
-            container.appendChild(subjectLabel);
-            container.appendChild(subjectInput);
-        }
+        const type = document.getElementById('RecipientType').value;
+        document.getElementById('classSelection').style.display = 'block';
+        document.getElementById('groupSelection').style.display = (type === 'GROUP') ? 'block' : 'none';
+        document.getElementById('studentSelection').style.display = (type === 'STUDENT') ? 'block' : 'none';
     }
 
-    // Tải danh sách thông báo
-    async function loadNotifications() {
+    // Load danh sách lớp
+    async function loadClasses() {
+        console.log('Gọi loadClasses');
         try {
-            const res = await fetch('http://localhost:3000/api/notifications');
-            const data = await res.json();
-            console.log(data);
-
-
-            const tbody = document.getElementById("notificationList");
-            tbody.innerHTML = "";
-
-            data.forEach(noti => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${noti.Id}</td>
-                    <td>${noti.NotificationTitle}</td>
-                    <td>${getTargetText(noti)}</td>
-                    <td>${new Date(noti.CreatedAt).toLocaleString('vi-VN')}</td>
-                    <td>${noti.Content}</td>
-                `;
-                tbody.appendChild(row);
+            const data = await fetchWithAuth('/api/notifications/classes/lecturer');
+            console.log('Danh sách lớp:', data);
+            const classSelect = document.getElementById('classSelect');
+            classSelect.innerHTML = '<option value="">Chọn lớp</option>';
+            data.forEach(cls => {
+                    const option = document.createElement('option');
+                option.value = cls.Id;
+                option.textContent = cls.ClassName;
+                classSelect.appendChild(option);
             });
         } catch (err) {
-            console.error("❌ Lỗi khi tải danh sách:", err);
-            document.getElementById("notificationList").innerHTML = `
-                <tr><td colspan="5" style="text-align:center;">Không thể tải dữ liệu</td></tr>
-            `;
+            console.error('Lỗi loadClasses:', err);
+            alert('Không thể tải danh sách lớp');
         }
     }
 
-    // Hiển thị mô tả loại người nhận
-    function getTargetText(noti) {
-        if (noti.RecipientType === "student") return `Sinh viên ${noti.StudentId}`;
-        if (noti.RecipientType === "group") return `Nhóm ${noti.GroupId}`;
-        if (noti.RecipientType === "class") return `Lớp ${noti.ClassId} - Môn ${noti.SubjectId}`;
-        return "Không rõ";
+    // Load nhóm theo lớp
+    async function loadGroups(classId) {
+        console.log('Gọi loadGroups với classId:', classId);
+        if (!classId) return;
+        try {
+            const data = await fetchWithAuth(`/api/notifications/groups?classId=${classId}`);
+            console.log('Danh sách nhóm:', data);
+            const groupSelect = document.getElementById('groupSelect');
+                groupSelect.innerHTML = '<option value="">Chọn nhóm</option>';
+                data.forEach(group => {
+                    const option = document.createElement('option');
+                    option.value = group.Id;
+                    option.textContent = group.GroupName;
+                    groupSelect.appendChild(option);
+                });
+        } catch {
+            alert('Không thể tải nhóm');
+        }
     }
 
-    document.getElementById("notificationForm").addEventListener("submit", function (event) {
-        event.preventDefault();
-        initNotification(); // chỉ gọi khi cần gửi thông báo
-    });
+    // Load sinh viên theo lớp
+    async function loadStudents(classId) {
+        console.log('Gọi loadStudents với classId:', classId);
+        if (!classId) return;
+        try {
+            const data = await fetchWithAuth(`/api/notifications/students?classId=${classId}`);
+            console.log('Danh sách sinh viên:', data);
+            const studentSelect = document.getElementById('studentSelect');
+            studentSelect.innerHTML = '<option value="">Chọn sinh viên</option>';
+            data.forEach(stu => {
+                const option = document.createElement('option');
+                option.value = stu.StudentCode;
+                option.textContent = `${stu.StudentCode} - ${stu.FullName}`;
+                studentSelect.appendChild(option);
+            });
+        } catch {
+            alert('Không thể tải sinh viên');
+        }
+    }
 
-    document.querySelector("#editSection .input-with-button button").addEventListener("click", fetchNotification);
+    // Khi chọn lớp, load nhóm và sinh viên
+    function onClassChange() {
+        const classId = document.getElementById('classSelect').value;
+        if (document.getElementById('groupSelection').style.display === 'block') {
+            loadGroups(classId);
+        }
+        if (document.getElementById('studentSelection').style.display === 'block') {
+            loadStudents(classId);
+        }
+    }
 
-    // Khi load trang
-    updateTargetSelection();  // Cập nhật form khi tải trang
-    loadNotifications();  // Tải danh sách thông báo khi tải trang
-}
+    // Gửi thông báo
+    async function submitNotification(e) {
+        e.preventDefault();
+        const action = document.querySelector('input[name="action"]:checked').value;
+        const title = document.getElementById('title').value.trim();
+        const content = document.getElementById('content').value.trim();
+        const type = document.getElementById('RecipientType').value;
+        const classId = document.getElementById('classSelect').value;
+        let body = { title, content, classId: parseInt(classId) };
+
+        if (!title || !content || !classId) {
+            alert('Vui lòng nhập đủ thông tin!');
+            return;
+        }
+        if (type === 'GROUP') {
+            const groupId = document.getElementById('groupSelect').value;
+            if (!groupId) return alert('Chọn nhóm!');
+            body.groupId = parseInt(groupId);
+        }
+        if (type === 'STUDENT') {
+            const studentCode = document.getElementById('studentSelect').value;
+            if (!studentCode) return alert('Chọn sinh viên!');
+            body.studentCode = studentCode;
+        }
+
+        // Kiểm tra chế độ sửa/thêm
+        if (action === 'edit') {
+            if (!editingNotificationId) {
+                alert('Bạn phải nhập mã thông báo và bấm Tìm để sửa!');
+                return;
+            }
+            // Sửa thông báo
+            await fetchWithAuth(`/api/notifications/${editingNotificationId}`, {
+                method: 'PUT',
+                body: JSON.stringify({ title, content })
+            });
+            alert('Đã cập nhật thông báo!');
+            editingNotificationId = null;
+            updateSubmitButton();
+        } else {
+            // Thêm mới
+            await fetchWithAuth('/api/notifications', {
+                method: 'POST',
+                body: JSON.stringify(body)
+            });
+            alert('Đã gửi thông báo!');
+        }
+        document.getElementById('notificationForm').reset();
+        updateTargetSelection();
+        loadNotifications();
+    }
+
+    // Load danh sách thông báo
+    async function loadNotifications() {
+        console.log('Gọi loadNotifications');
+        try {
+            const data = await fetchWithAuth('/api/notifications');
+            console.log('Danh sách thông báo:', data);
+            const list = document.getElementById('notificationList');
+            list.innerHTML = '';
+            data.forEach(noti => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${noti.Id}</td>
+                    <td>${noti.Title || noti.title || ''}</td>
+                    <td>${noti.RecipientName || noti.recipientName || ''}</td>
+                    <td>${noti.CreatedAt ? new Date(noti.CreatedAt).toLocaleString() : (noti.createdAt ? new Date(noti.createdAt).toLocaleString() : '')}</td>
+                    <td>${noti.Content || noti.content || ''}</td>
+                `;
+                list.appendChild(tr);
+            });
+        } catch {
+            alert('Không thể tải thông báo');
+        }
+    }
+
+    function updateEditSection() {
+        const action = document.querySelector('input[name="action"]:checked').value;
+        const editSection = document.getElementById('editSection');
+        if (action === 'edit') {
+            editSection.style.display = 'block';
+            document.getElementById('notificationId').disabled = false;
+        } else {
+            editSection.style.display = 'none';
+            document.getElementById('notificationId').disabled = true;
+            editingNotificationId = null;
+            updateSubmitButton();
+        }
+    }
+
+    function updateSubmitButton() {
+        const btn = document.querySelector('#notificationForm button[type="submit"]');
+        if (editingNotificationId) {
+            btn.innerHTML = '<i class="fas fa-save"></i> Cập nhật';
+        } else {
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Gửi Thông Báo';
+        }
+    }
+
+    function initNotificationPage() {
+        if (!checkAuth()) return;
+        updateTargetSelection();
+        loadClasses();
+        loadNotifications();
+
+        document.getElementById('RecipientType').addEventListener('change', function() {
+            updateTargetSelection();
+            onClassChange();
+        });
+        document.getElementById('classSelect').addEventListener('change', onClassChange);
+        document.getElementById('notificationForm').addEventListener('submit', submitNotification);
+
+        // Gắn sự kiện cho radio group
+        document.querySelectorAll('input[name="action"]').forEach(radio => {
+            radio.addEventListener('change', updateEditSection);
+        });
+        updateEditSection(); // Gọi lần đầu để set đúng trạng thái
+
+        document.querySelector('#editSection button').addEventListener('click', async function() {
+            const notificationId = document.getElementById('notificationId').value.trim();
+            if (!notificationId) {
+                alert('Vui lòng nhập mã thông báo!');
+                return;
+            }
+            try {
+                const data = await fetchWithAuth(`/api/notifications/${notificationId}`);
+                // Hiện thông tin thông báo ra form để sửa
+                // Ví dụ:
+                document.getElementById('title').value = data.Title || data.title || '';
+                document.getElementById('content').value = data.Content || data.content || '';
+                // ... các trường khác nếu cần
+                alert('Đã tìm thấy thông báo!');
+                editingNotificationId = notificationId; // Lưu lại id đang sửa
+                updateSubmitButton();
+            } catch (err) {
+                alert('Không thấy thông báo!');
+            }
+        });
+    }
+
+    window.initNotificationPage = initNotificationPage;
+})();

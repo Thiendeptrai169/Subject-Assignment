@@ -42,6 +42,23 @@ a {
   cursor: pointer;
 }
 
+.notification-item.unread {
+  background: #eaf6ff;
+  border-left: 4px solid #007bff;
+  position: relative;
+}
+.notification-item.unread::before {
+  content: '';
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background: #ff3b3b;
+  border-radius: 50%;
+  position: absolute;
+  right: 16px;
+  top: 22px;
+}
+
 /* === Notification Detail === */
 .notification-detail {
   margin-top: 24px;
