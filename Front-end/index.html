@@ -30,10 +30,10 @@
             <div class="user-profile">
                 <img src="icon/Thiên-fotor-2025032615838.png" alt="User Avatar" class="avatar-mini" id="userAvatar">
                 <div class="user-popup" id="userPopup">
-                    <div class="user-info">
-
-                        <p id="userInfo">Đang tải thông tin...</p>
-
+                    
+                    <div id="user-popup" class="menu-item fw-bold">
+                        <span id="popup-name"></span>-
+                        <span id="popup-id"></span>
                     </div>
                     <div class="popup-menu">
                         <a href="/profile.html" class="menu-item">
@@ -69,8 +69,8 @@
         <div class="sidebar">
             <div class="sidebar-header">
                 <img src="icon/Thiên-fotor-2025032615838.png" alt="User Avatar" class="avatar-large">
-                <span id="sidebar-name">Phạm Hùng Thiên</span>
-                <span id="sidebar-id">N22DCCN180</span>
+                <div class="user-name" id="sidebar-name"></div>
+                <div class="user-id" id="sidebar-id"></div>
 
             </div>
             <div class="sidebar-section">
@@ -137,9 +137,6 @@
         <main id="page-content">
             <div id="title">Danh sách đề tài mở cho sinh viên đăng ký</div>
             <div id="filter-box">
-                <label for="filter-class">Lọc theo lớp: </label>
-
-                <select id="filter-class"></select> 
                 <label for ="filter-subject">Lọc theo môn học: </label>
 
                 <select id="filter-subject"></select>
@@ -154,9 +151,7 @@
                         <th>Chọn</th>
                         <th>Mã Đề Tài</th>
                         <th>Tên Đề Tài</th>
-                        <th>Số Lượng SV Tối Thiểu</th>
-                        <th>Số Lượng SV Tối Đa</th>
-
+                        <th>Giới hạn SV/nhóm</th>
                         <th>Chỗ Trống</th>
 
                         <th>Giảng viên</th>
@@ -209,7 +204,7 @@
 
     </div>
 
-    <script>
+    <!-- <script>
         // Hàm lấy thông tin người dùng từ API
         async function fetchUserInfo() {
             const userInfoElement = document.getElementById('userInfo');
@@ -275,10 +270,10 @@
                 link.href = '/group-page.html';
             }
 
-            // Gọi API để cập nhật thông tin người dùng
-               // fetchUserInfo(); 
+            //Gọi API để cập nhật thông tin người dùng
+                fetchUserInfo(); 
         });
-    </script>
+    </script> -->
 
     <script src="/js/app.js"></script>
 </body>

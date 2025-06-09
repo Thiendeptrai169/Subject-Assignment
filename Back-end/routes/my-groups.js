@@ -116,8 +116,7 @@ router.get('/', authenticateToken, async (req, res) => {
                     P.ProjectName,
                     SJ.SubjectCode,
                     SJ.SubjectName,
-                    C.ClassCode,
-                    C.ClassName
+                    C.ClassCode
                 FROM GroupMembers GM
                 JOIN StudentGroups SG ON GM.GroupId = SG.Id
                 JOIN SubjectProjects SP ON SG.SubjectProjectsId = SP.Id

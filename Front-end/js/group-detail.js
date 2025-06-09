@@ -61,7 +61,7 @@ async function loadGroupDetail() {
                         <i class="fa-solid fa-id-badge"></i>${member.StudentId}
                     </div>
                     <div class="member-info">
-                        <i class="fas fa-graduation-cap"></i>${member.ClassName}
+                        <i class="fas fa-graduation-cap"></i>${member.ClassCode}
                     </div>
                     <div class="member-info">
                         <i class="fas fa-birthday-cake"></i>${formatDate(member.DateOfBirth)}

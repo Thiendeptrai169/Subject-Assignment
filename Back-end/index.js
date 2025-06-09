@@ -47,16 +47,15 @@ const notificationRoutes = require('./routes/notifications');
 const StudentNotificationRoutes = require('./routes/StudentNotifications');
 const classRoutes = require('./routes/classes');
 const subjectRoutes = require('./routes/subjects');
-const semesterRoutes = require('./routes/semesters');
 const profileRoutes = require('./routes/profiles');
 const teachingAssignmentRoutes = require('./routes/teachingassignments');
+const enrollmentsRouter = require('./routes/enrollments');
 
 app.use('/api/projects',projectRoutes);
 app.use('/api/notifications', notificationRoutes); 
 app.use('/api/StudentNotifications', StudentNotificationRoutes);
 app.use('/api/classes', classRoutes);
 app.use('/api/subjects', subjectRoutes);
-app.use('/api/semesters', semesterRoutes);
 app.use('/api/profiles', profileRoutes);
 app.use('/api/teachingassignments', teachingAssignmentRoutes);
 app.use('/api/my-groups', myGroupRoutes);
@@ -64,7 +63,7 @@ app.use('/api/my-group-detail', myGroupDetailRoutes);
 app.use('/api/lecturer-projects', lecturerProjectsRoutes);
 app.use('/api/project-groups', projectGroupsRoutes);
 app.use('/api/lecturer-subjects', lecturerSubjectsRoutes);
-
+app.use('/api/enrollments', enrollmentsRouter);
 
 // Route bảo vệ (dữ liệu JSON)
 app.get('/protected', (req, res) => {
@@ -82,7 +81,7 @@ app.get('/change-password', (req, res) => {
     res.sendFile(path.join(__dirname, '../Front-end/pages/change-password.html'));
 });
 
-// Route đăng nhập
+// // Route đăng nhập
 app.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -112,7 +111,7 @@ app.post('/login', async (req, res) => {
         const account = result.recordset[0];
         // const isMatch = await bcrypt.compare(password, account.Password);
         // if (!isMatch) {
-        // So sánh trực tiếp mật khẩu plaintext
+        // So sánh trực tiế p mật khẩu plaintext
         if (password !== account.Password) {
             console.log('Invalid password for user:', username);
             return res.status(401).json({
@@ -170,7 +169,7 @@ app.post('/change-password', async (req, res) => {
 
         let decoded;
         try {
-            decoded = jwt.verify(token, JWT_SECRET);
+            decoded = jwt.verify(token, process.env.JWT_SECRET);
         } catch (err) {
             return res.status(403).json({ message: 'Token không hợp lệ hoặc đã hết hạn' });
         }

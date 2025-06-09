@@ -1,18 +1,18 @@
-const sql = require('mssql');
 const bcrypt = require('bcrypt');
 const fs = require('fs');
 const path = require('path');
-const dbConfig = require('./config/dbconfig');
+const { sql, pool, poolConnect } = require('./config/db');
+require('dotenv').config();
 
 async function addUser(id, username, password, roleId) {
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         const createdAt = new Date();
 
-        let pool = await sql.connect(dbConfig);
-
+        await poolConnect;
+        const request = pool.request();
         // Thêm user vào bảng Accounts
-        await pool.request()
+        const result = await request
             .input('id', sql.VarChar, id)
             .input('username', sql.VarChar, username)
             .input('password', sql.VarChar, hashedPassword)
