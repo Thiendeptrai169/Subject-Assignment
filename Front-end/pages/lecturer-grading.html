@@ -1,0 +1,210 @@
+<div class="page-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="">
+                    <h1 class="mb-0">
+                        <i class="fas fa-clipboard-check me-3"></i>
+                        Nhập điểm báo cáo
+                    </h1>
+                   
+                </div>
+            </div>
+        </div>
+    </div>
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card stats-card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                        <h4 class="mb-0" id="total-groups">0</h4>
+                        <small class="text-muted">Tổng số nhóm</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-clipboard-list fa-2x text-success mb-2"></i>
+                        <h4 class="mb-0" id="total-reports">0</h4>
+                        <small class="text-muted">Báo cáo đã chấm</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                        <h4 class="mb-0" id="pending-reports">0</h4>
+                        <small class="text-muted">Chờ chấm điểm</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
+                        <h4 class="mb-0" id="avg-score">0</h4>
+                        <small class="text-muted">Điểm trung bình</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Môn học</label>
+                        <select class="form-select" id="subject-filter">
+                            <option value="">Tất cả môn học</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Lớp</label>
+                        <select class="form-select" id="class-filter">
+                            <option value="">Tất cả lớp</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Đề tài</label>
+                        <select class="form-select" id="project-filter">
+                            <option value="">Tất cả đề tài</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Tìm kiếm</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="search-input" placeholder="Tên nhóm, đề tài...">
+                            <button class="btn btn-outline-secondary" type="button" id="search-button">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Groups List -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list me-2"></i>
+                            Danh sách nhóm
+                        </h5>
+                        <span class="badge bg-primary" id="groups-count">0</span>
+                    </div>
+                    <div class="card-body p-2">
+                        <div class="groups-container">
+                            <div id="groups-list">
+                                <div class="text-center p-4">
+                                    <div class="loading-spinner">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <p class="mt-2 text-muted">Đang tải danh sách nhóm...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grading Panel -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-bar me-2"></i>
+                            Chi tiết điểm số
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="grading-container">
+                            <div id="grading-panel">
+                                <div class="text-center p-5">
+                                    <i class="fas fa-mouse-pointer fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">Chọn một nhóm để xem chi tiết</h5>
+                                    <p class="text-muted">Nhấp vào một nhóm bên trái để xem thông tin chi tiết và điểm số các đợt báo cáo</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grade Input Modal -->
+    <div class="modal fade" id="gradeModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-star me-2"></i>
+                        Nhập điểm báo cáo
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="grade-form">
+                    <div class="modal-body">
+                        <!-- Group Info -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Nhóm</label>
+                                <input type="text" class="form-control" id="modal-group-name" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Đề tài</label>
+                                <input type="text" class="form-control" id="modal-project-name" readonly>
+                            </div>
+                        </div>
+
+                        <!-- Periods Form Container -->
+                        <div id="periods-form-container">
+                            <!-- Periods will be dynamically generated here -->
+                        </div>
+
+                        <!-- Total Percentage Display -->
+                        <div class="total-percent-display">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <strong>Tổng tỷ lệ phần trăm: <span id="total-percent">0</span>%</strong>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <span class="badge bg-warning" id="percent-status">Chưa đủ 100%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Hủy
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="save-grades-btn" disabled>
+                            <i class="fas fa-save me-2"></i>Lưu điểm
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body text-center p-4">
+                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                    <h5>Lưu điểm thành công!</h5>
+                    <p class="text-muted">Điểm đã được cập nhật vào hệ thống.</p>
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">
+                        <i class="fas fa-check me-2"></i>Đóng
+                    </button>
+                </div>
+            </div>
+        </div>

@@ -1,0 +1,97 @@
+<div id="notification-title">Quản lý thông báo</div>
+
+<div class="notification-container">
+    <div class="radio-group">
+        <label>
+            <input type="radio" name="action" value="add" checked> Thêm thông báo
+        </label>
+        <label>
+            <input type="radio" name="action" value="edit"> Sửa thông báo
+        </label>
+    </div>
+
+    <div id="editSection" style="display: none;">
+        <label for="notificationId">🔎 Mã Thông Báo:</label>
+        <div class="input-with-button">
+            <input type="text" id="notificationId" placeholder="Nhập mã thông báo" disabled />
+            <button type="button">Tìm</button>
+        </div>
+    </div>
+
+    <form id="notificationForm">
+        <div class="form-group">
+            <label for="title">✏️ Tiêu đề:</label>
+            <input type="text" id="title" class="form-control" required />
+        </div>
+
+        <div class="form-group">
+            <label for="content">📝 Nội dung:</label>
+            <textarea id="content" class="form-control" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="RecipientType">🎯 Gửi đến:</label>
+            <select id="RecipientType" name="RecipientType" class="form-control">
+                <option value="CLASS">Lớp</option>
+                <option value="GROUP">Nhóm trong lớp</option>
+                <option value="STUDENT">Sinh viên trong lớp</option>
+            </select>
+        </div>
+
+        <div id="targetSelection">
+            <!-- Lớp (luôn hiển thị) -->
+            <div id="classSelection" class="selection-section">
+                <div class="form-group">
+                    <label>Chọn lớp:</label>
+                    <select id="classSelect" class="form-control">
+                        <option value="">Chọn lớp</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Nhóm (chỉ hiện khi gửi nhóm) -->
+            <div id="groupSelection" class="selection-section" style="display: none;">
+                <div class="form-group">
+                    <label>Chọn nhóm:</label>
+                    <select id="groupSelect" class="form-control">
+                        <option value="">Chọn nhóm</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Sinh viên (chỉ hiện khi gửi sinh viên) -->
+            <div id="studentSelection" class="selection-section" style="display: none;">
+                <div class="form-group">
+                    <label>Chọn sinh viên:</label>
+                    <select id="studentSelect" class="form-control">
+                        <option value="">Chọn sinh viên</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-paper-plane"></i> Gửi Thông Báo
+            </button>
+        </div>
+    </form>
+
+    <div class="notification-list">
+        <h2>📋 Thông Báo Đã Đăng</h2>
+        <table class="data-table-notification">
+            <thead>
+                <tr>
+                    <th>MÃ</th>
+                    <th>TIÊU ĐỀ</th>
+                    <th>NGƯỜI NHẬN</th>
+                    <th>THỜI GIAN</th>
+                    <th>NỘI DUNG</th>
+                </tr>
+            </thead>
+            <tbody id="notificationList">
+            </tbody>
+        </table>
+    </div>
+</div>
+

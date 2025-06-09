@@ -1,10 +1,15 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
+
 const path = require('path');
 const bcrypt = require('bcrypt');
 const fs = require('fs');
-const { sql, pool, poolConnect } = require('./config/dbconfig');
+const { sql, pool, poolConnect } = require('./config/db');
+
+require('dotenv').config();
+
+
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -13,12 +18,14 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+
 // Serve static files
 app.use(express.static(path.join(__dirname, '../Front-end'), { index: false }));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../Front-end/pages/login.html'));
 });
+
 
 //Route test
 // app.get('/', (req,res) => {
@@ -27,19 +34,48 @@ app.get('/', (req, res) => {
 
 //Real routes
 const projectRoutes = require('./routes/projects');
-const classRoutes = require('./routes/classes');
-const subjectRoutes = require('./routes/subjects');
-const semesterRoutes = require('./routes/semesters');
+
+
+
+
 const myGroupRoutes = require('./routes/my-groups');
 const myGroupDetailRoutes = require('./routes/my-group-detail');
-const lecturerProjectsRoutes = require('./routes/lecturerProjects');
-app.use('/api/projects', projectRoutes);
+const lecturerProjectsRoutes = require('./routes/lecturer-projects');
+const projectGroupsRoutes = require('./routes/project-groups');
+const lecturerSubjectsRoutes = require('./routes/lecturer-subjects');
+const notificationRoutes = require('./routes/notifications'); 
+const StudentNotificationRoutes = require('./routes/StudentNotifications');
+const classRoutes = require('./routes/classes');
+const subjectRoutes = require('./routes/subjects');
+const profileRoutes = require('./routes/profiles');
+const teachingAssignmentRoutes = require('./routes/teachingassignments');
+const enrollmentsRouter = require('./routes/enrollments');
+const reportPeriodRoutes = require('./routes/report-period');
+const studentGroupRoutes = require('./routes/student-groups');
+const subjectClassRoutes = require('./routes/subject-class');
+const subjectGradingRoutes = require('./routes/subject-grading');
+const subClassProjectRoutes = require('./routes/subclass-projects');
+
+app.use('/api/projects',projectRoutes);
+app.use('/api/notifications', notificationRoutes); 
+app.use('/api/StudentNotifications', StudentNotificationRoutes);
 app.use('/api/classes', classRoutes);
 app.use('/api/subjects', subjectRoutes);
-app.use('/api/semesters', semesterRoutes);
+app.use('/api/profiles', profileRoutes);
+app.use('/api/teachingassignments', teachingAssignmentRoutes);
 app.use('/api/my-groups', myGroupRoutes);
 app.use('/api/my-group-detail', myGroupDetailRoutes);
 app.use('/api/lecturer-projects', lecturerProjectsRoutes);
+app.use('/api/project-groups', projectGroupsRoutes);
+app.use('/api/lecturer-subjects', lecturerSubjectsRoutes);
+app.use('/api/enrollments', enrollmentsRouter);
+app.use('/api/report-period', reportPeriodRoutes);
+app.use('/api/student-groups', studentGroupRoutes);
+app.use('/api/subject-class', subjectClassRoutes);
+app.use('/api/subject-grading', subjectGradingRoutes);
+app.use('/api/subclass-projects', subClassProjectRoutes);
+
+
 // Route bảo vệ (dữ liệu JSON)
 app.get('/protected', (req, res) => {
     res.json({
@@ -56,7 +92,7 @@ app.get('/change-password', (req, res) => {
     res.sendFile(path.join(__dirname, '../Front-end/pages/change-password.html'));
 });
 
-// Route đăng nhập
+// // Route đăng nhập
 app.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -84,17 +120,15 @@ app.post('/login', async (req, res) => {
             });
         }
         const account = result.recordset[0];
-        // const isMatch = await bcrypt.compare(password, account.Password);
-        // if (!isMatch) {
-        // So sánh trực tiếp mật khẩu plaintext
-        if (password !== account.Password) {
+        const isMatch = await bcrypt.compare(password, account.Password);
+        if (!isMatch) {
             console.log('Invalid password for user:', username);
             return res.status(401).json({
                 error: 'Unauthorized',
                 message: 'Đăng nhập thất bại: sai tên tài khoản hoặc mật khẩu'
             });
         }
-
+        
         if (!account.IsActive) {
             console.log('Inactive account:', username);
             return res.status(403).json({
@@ -108,8 +142,8 @@ app.post('/login', async (req, res) => {
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
-        // const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        // console.log('Decoded token:', decoded);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log('Decoded token:', decoded);
 
 
         console.log('Login successful:', username);
@@ -144,7 +178,7 @@ app.post('/change-password', async (req, res) => {
 
         let decoded;
         try {
-            decoded = jwt.verify(token, JWT_SECRET);
+            decoded = jwt.verify(token, process.env.JWT_SECRET);
         } catch (err) {
             return res.status(403).json({ message: 'Token không hợp lệ hoặc đã hết hạn' });
         }
@@ -203,6 +237,13 @@ app.post('/change-password', async (req, res) => {
         res.status(500).json({ message: 'Lỗi server' });
     }
 });
+
+
+
+
+
+
+
 
 //Fallback Route cho SPA
 app.get(/^\/(?!api).*/, (req, res) => {

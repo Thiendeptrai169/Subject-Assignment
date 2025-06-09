@@ -1,0 +1,149 @@
+
+<div id="manageproject-title">Quản lý đề tài</div>
+
+
+<div class="manageproject-actions-bar">
+    <button id="create-project-btn"> 
+        <i class="fas fa-plus"></i> Tạo đề tài mới
+    </button>
+</div>
+
+
+<div id="manageproject-filter-box" class="filter-box-manage"> 
+
+    <label for="filter-class-manage">Lọc theo lớp:</label>
+    <select id="filter-class-manage">
+        <option value="">Tất cả</option>
+    </select>
+
+    <label for="filter-subject-manage">Lọc theo môn:</label>
+    <select id="filter-subject-manage">
+        <option value="">Tất cả</option>
+    </select>
+
+    <label for="filter-name-manage">Tìm kiếm theo tên đề tài:</label>
+    <input type="text" id="filter-name-manage" placeholder="Nhập tên đề tài...">
+    <button id="filter-search-btn-manage"><i class="fas fa-search"></i> Tìm</button> 
+</div>
+
+
+<table class="data-table-manageproject">
+    <thead>
+        <tr>
+
+            <th>Mã Đề Tài</th>
+            <th>Tên Đề Tài</th>
+            <th>Giới hạn SV/nhóm</th>
+            <th>Số SV GV có thể thêm vào nhóm</th>
+            <th>Giới hạn nhóm/môn</th>
+            <th>Môn Học</th>
+            <th>Lớp</th> 
+            <th>Ngày Bắt Đầu</th>
+            <th>Ngày Kết Thúc</th>
+            <th>Mô Tả</th>
+            <th>Hành động</th> 
+        </tr>
+    </thead>
+    <tbody id="lecturer-project-list">
+        <tr>
+            <td>DT01</td>
+            <td>Đề tài về Web bán hàng</td>
+            <td>1</td>
+            <td>5</td>
+            <td>3</td>
+            <td>Lập Trình Web</td>
+            <td>D22CQCN01-N</td>
+            <td>2025-03-01</td>
+            <td>2025-03-15</td>
+            <td>Xây dựng website bán hàng cơ bản...</td>
+            <td class="action-buttons">
+                <button class="btn-edit" title="Sửa đề tài"><i class="fas fa-edit"></i></button>
+                <button class="btn-delete" title="Xóa đề tài"><i class="fas fa-trash-alt"></i></button>
+            </td>
+        </tr>
+         <tr>
+            <td>DT02</td>
+            <td>Phân tích Hệ thống Quản lý</td>
+            <td>1</td>
+            <td>3</td>
+            <td>3</td>
+            <td>Phân tích TK Hệ thống</td>
+            <td>D22CQPT01-N</td>
+            <td>2025-03-05</td>
+            <td>2025-03-20</td>
+            <td>Phân tích và thiết kế UML cho...</td>
+             <td class="action-buttons">
+                <button class="btn-edit" title="Sửa đề tài"><i class="fas fa-edit"></i></button>
+                <button class="btn-delete" title="Xóa đề tài"><i class="fas fa-trash-alt"></i></button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="popup-overlay" style="display: none;"></div>
+<div class="create-project-popup" style="display: none;">
+    <div class="popup-header">
+        <h2 id="popup-title">Tạo & Gán Đề Tài</h2>
+        <button class="close-popup-btn"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="popup-tabs">
+        <button class="tab-btn active" data-tab="tab-create-edit-template">1. Thông Tin Đề Tài Mẫu</button>
+        <button class="tab-btn" data-tab="tab-assign-to-class">2. Gán Cho Lớp</button>
+    </div>
+
+    <div class="popup-content active" id="tab-create-edit-template" style="display: block;">
+        <form id="project-template-form">
+            <h4>Thông Tin Đề Tài Mẫu</h4>
+            <div class="form-group">
+                <label for="new-project-code">Mã Đề Tài Mẫu (GV tự đặt nếu tạo mới)</label>
+                <input type="text" id="new-project-code" class="form-control" placeholder="Ví dụ: WEB_ECOM_ADV">
+            </div>
+            <div class="form-group">
+                <label for="project-template-name">Tên Đề Tài Mẫu</label>
+                <input type="text" id="project-template-name" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="project-template-description">Mô Tả Đề Tài Mẫu</label>
+                <textarea id="project-template-description" class="form-control" rows="3"></textarea>
+            </div>
+            <div class="popup-actions" style="text-align: right; padding-top: 15px; border-top: 1px solid #eee; margin-top:15px;">
+            <button type="button" id="btn-cancel-popup" class="btn btn-secondary">Hủy</button> 
+            <button type="button" id="btn-cancel-edit-template" class="btn btn-outline-secondary" style="display:none;">Hủy Sửa Đề Tài</button> 
+            <button type="button" id="btn-save-update-template" class="btn btn-primary">Lưu Đề Tài Mới</button> 
+        </form>
+        <hr>
+        <div class="project-existing-list" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
+            <div class="project-row header">
+                 <div>Mã ĐT Mẫu</div>
+                 <div>Tên đề tài Mẫu</div>
+                 <div>Mô Tả Mẫu</div>
+                 <div>Hành động</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="popup-content" id="tab-assign-to-class" style="display: none;">
+        <form id="assign-to-class-form">
+            <h4>Gán Đề Tài Cho Lớp Học Phần</h4>
+            <div class="form-group">
+                <label for="assign-subject">Chọn Môn Học (Bạn dạy)</label>
+                <select id="assign-subject" class="form-control" required>
+                    <option value="">-- Chọn Môn --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="assign-class">Chọn Lớp (Bạn dạy môn đó)</label>
+                <select id="assign-class" class="form-control" required>
+                    <option value="">-- Chọn Lớp --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="assign-max-groups">Số Nhóm Tối Đa Được Đăng Ký (cho đề tài này ở lớp này)</label>
+                <input type="number" id="assign-max-groups" class="form-control" min="0" placeholder="Để trống = không giới hạn">
+            </div>
+        </form>
+    </div>
+
+
+</div>
