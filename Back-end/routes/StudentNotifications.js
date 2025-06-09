@@ -1,84 +1,54 @@
 const express = require('express');
 const router = express.Router();
 const {sql, pool, poolConnect } = require('../config/db');
+const { authenticateToken } = require('../middleware/auth');
 
-// ✅ GET /api/StudentNotifications/unread-count/:studentId
-router.get('/unread-count/:studentId', async (req, res) => {
-  await pool.connect(); // Đảm bảo kết nối
-  const { studentId } = req.params;
+console.log('StudentNotifications.js loaded!');
 
+// ✅ GET /api/StudentNotifications/me
+router.get('/me', authenticateToken, async (req, res) => {
+  console.log('API /me CALLED');
+  await poolConnect;
+  const accountId = req.user.accountId;
   try {
+    console.log('accountId:', accountId);
+
     const result = await pool.request()
-      .input('studentId',sql.Int, studentId)
+      .input('accountId', sql.VarChar, accountId)
+      .query('SELECT StudentCode FROM Students WHERE AccountId = @accountId');
+    if (!result.recordset[0]) return res.status(404).json({ message: 'Không tìm thấy sinh viên' });
+    const studentCode = result.recordset[0].StudentCode;
+
+    console.log('studentCode:', studentCode);
+
+    const notiResult = await pool.request()
+      .input('studentCode', sql.VarChar, studentCode)
       .query(`
-        SELECT COUNT(*) AS UnreadCount
-        FROM NotificationStatus
-        WHERE StudentId = @studentId AND IsRead = 0
+        SELECT n.Id AS NotificationId, 
+               n.Title, 
+               n.Content, 
+               n.CreatedAt, 
+               l.FullName AS CreatedByLecturerName, 
+               nr.ReadAt
+        FROM Notifications n
+        LEFT JOIN Lecturers l ON n.SenderType = 'LECTURER' AND n.Sender = l.LecturerCode
+        INNER JOIN NotificationRecipients nr ON n.Id = nr.NotificationId
+        WHERE nr.StudentCode = @studentCode
+        ORDER BY n.CreatedAt DESC
       `);
 
-    const unreadCount = result.recordset[0].UnreadCount;
+    console.log('notiResult.recordset:', notiResult.recordset);
 
-    res.json({ unreadCount });
-  } catch (error) {
-    console.error('Lỗi khi đếm thông báo chưa đọc:', error);
-    res.status(500).json({ error: 'Lỗi khi đếm thông báo chưa đọc' });
-  }
-});
-
-// ✅ GET /api/StudentNotifications/:studentId
-router.get('/:studentId', async (req, res) => {
-  console.log("GỌI ĐẾN API GET /:studentId");
-  await pool.connect();
-  const { studentId } = req.params;
-
-  try {
-    const result = await pool.request()
-      .input('studentId', sql.Int, studentId)
-      .query(`
-        
---DECLARE @groupId INT = NULL;  -- Nếu chọn nhóm, truyền mã nhóm vào đây, NULL nếu không chọn nhóm
---DECLARE @classId INT = NULL;  -- Nếu chọn lớp, truyền mã lớp vào đây, NULL nếu không chọn lớp
---DECLARE @subjectId INT = NULL;  -- Nếu chọn môn học, truyền mã môn vào đây, NULL nếu không chọn môn học
-
-SELECT n.Id AS NotificationId, 
-       n.NotificationTitle, 
-       n.Content, 
-       n.CreatedAt, 
-       l.FullName AS CreatedByLecturerName, 
-       ns.IsRead
-FROM Notifications n
-INNER JOIN Lecturers l ON n.CreatedByLecturer = l.Id
-INNER JOIN NotificationStatus ns ON n.Id = ns.NotificationId
-INNER JOIN Students s ON ns.StudentId = s.Id
-INNER JOIN GroupMembers gm ON s.Id = gm.StudentId
-INNER JOIN StudentGroups g ON gm.GroupId = g.Id
-LEFT JOIN Class c ON s.ClassId = c.Id
-LEFT JOIN Subjects sub ON n.SubjectId = sub.Id
-WHERE ns.StudentId = @studentId
-  -- Kiểm tra điều kiện cho mã sinh viên (nếu có)
- -- AND (@studentId IS NOT NULL AND ns.StudentId = @studentId)
-  
-  -- Kiểm tra điều kiện cho mã nhóm (nếu có)
-  --AND (@groupId IS NULL OR gm.GroupId = @groupId)
-  
-  -- Kiểm tra điều kiện cho mã lớp (nếu có)
-  --AND (@classId IS NULL OR s.ClassId = @classId)
-  
-  -- Kiểm tra điều kiện cho mã môn học (nếu có)
-  --AND (@subjectId IS NULL OR n.SubjectId = @subjectId)
-  
-ORDER BY n.CreatedAt DESC;
-      `);
-
-    const notifications = result.recordset ? result.recordset.map(n => ({
+    const notifications = notiResult.recordset.map(n => ({
       id: n.NotificationId,
-      notificationTitle: n.NotificationTitle,
+      title: n.Title,
       content: n.Content,
       createdAt: n.CreatedAt,
       createdByLecturerName: n.CreatedByLecturerName,
-      isRead: Boolean(n.IsRead)
+      isRead: n.ReadAt !== null
+    }));
 
-    })) : [];
+    console.log('notifications:', notifications);
 
     res.json(notifications);
   } catch (error) {
@@ -87,28 +57,106 @@ ORDER BY n.CreatedAt DESC;
   }
 });
 
-
-// ✅ PUT /api/StudentNotifications/:notificationId/read
-router.put('/:notificationId/read', async (req, res) => {
+// ✅ GET /api/StudentNotifications/me/unread-count
+router.get('/me/unread-count', authenticateToken, async (req, res) => {
   await pool.connect();
-  const { notificationId } = req.params;
-  const { studentId } = req.body;
-
+  const accountId = req.user.accountId;
   try {
-    await pool.request()
-      .input('notificationId',sql.Int, notificationId)
-      .input('studentId', sql.Int, studentId)
-      .input('IsRead',sql.Int, 1)
+    // Lấy studentCode từ bảng Students
+    const result = await pool.request()
+      .input('accountId', sql.VarChar, accountId)
+      .query('SELECT StudentCode FROM Students WHERE AccountId = @accountId');
+    if (!result.recordset[0]) return res.status(404).json({ message: 'Không tìm thấy sinh viên' });
+    const studentCode = result.recordset[0].StudentCode;
+
+    // Đếm số thông báo chưa đọc
+    const unreadResult = await pool.request()
+      .input('studentCode', sql.VarChar, studentCode)
       .query(`
-        UPDATE NotificationStatus
-        SET IsRead = @IsRead
-        WHERE NotificationId = @notificationId AND StudentId = @studentId
+        SELECT COUNT(*) AS UnreadCount
+        FROM NotificationRecipients
+        WHERE StudentCode = @studentCode AND ReadAt IS NULL
+      `);
+    const unreadCount = unreadResult.recordset[0].UnreadCount;
+    res.json({ unreadCount });
+  } catch (error) {
+    console.error('Lỗi khi đếm thông báo chưa đọc:', error);
+    res.status(500).json({ error: 'Lỗi khi đếm thông báo chưa đọc' });
+  }
+  
+});
+
+// ✅ PUT /api/StudentNotifications/:id/read
+router.put('/:id/read', authenticateToken, async (req, res) => {
+  await poolConnect;
+  const notificationId = req.params.id;
+  const accountId = req.user.accountId;
+  try {
+    // Lấy studentCode từ bảng Students
+    const result = await pool.request()
+      .input('accountId', sql.VarChar, accountId)
+      .query('SELECT StudentCode FROM Students WHERE AccountId = @accountId');
+    if (!result.recordset[0]) return res.status(404).json({ message: 'Không tìm thấy sinh viên' });
+    const studentCode = result.recordset[0].StudentCode;
+
+    // Cập nhật ReadAt
+    await pool.request()
+      .input('notificationId', sql.Int, notificationId)
+      .input('studentCode', sql.VarChar, studentCode)
+      .input('readAt', sql.DateTime, new Date())
+      .query(`
+        UPDATE NotificationRecipients
+        SET ReadAt = @readAt
+        WHERE NotificationId = @notificationId AND StudentCode = @studentCode
       `);
 
     res.json({ message: 'Đã cập nhật trạng thái đã đọc' });
   } catch (error) {
-    console.error('Lỗi khi cập nhật trạng thái:', error);
-    res.status(500).json({ error: 'Lỗi khi cập nhật trạng thái', message: error.message });
+    console.error('Lỗi khi cập nhật trạng thái đã đọc:', error);
+    res.status(500).json({ error: 'Lỗi khi cập nhật trạng thái đã đọc' });
+  }
+});
+
+// GET /api/StudentNotifications/me/unread
+router.get('/me/unread', authenticateToken, async (req, res) => {
+  await poolConnect;
+  const accountId = req.user.accountId;
+  try {
+    // Lấy studentCode từ bảng Students
+    const result = await pool.request()
+      .input('accountId', sql.VarChar, accountId)
+      .query('SELECT StudentCode FROM Students WHERE AccountId = @accountId');
+    if (!result.recordset[0]) return res.status(404).json({ message: 'Không tìm thấy sinh viên' });
+    const studentCode = result.recordset[0].StudentCode;
+
+    // Lấy danh sách thông báo chưa đọc
+    const notiResult = await pool.request()
+      .input('studentCode', sql.VarChar, studentCode)
+      .query(`
+        SELECT n.Id AS NotificationId, 
+               n.Title, 
+               n.Content, 
+               n.CreatedAt, 
+               l.FullName AS CreatedByLecturerName
+        FROM Notifications n
+        LEFT JOIN Lecturers l ON n.SenderType = 'LECTURER' AND n.Sender = l.LecturerCode
+        INNER JOIN NotificationRecipients nr ON n.Id = nr.NotificationId
+        WHERE nr.StudentCode = @studentCode AND nr.ReadAt IS NULL
+        ORDER BY n.CreatedAt DESC
+      `);
+
+    const notifications = notiResult.recordset.map(n => ({
+      id: n.NotificationId,
+      title: n.Title,
+      content: n.Content,
+      createdAt: n.CreatedAt,
+      createdByLecturerName: n.CreatedByLecturerName
+    }));
+
+    res.json(notifications);
+  } catch (error) {
+    console.error('❌ Lỗi khi lấy thông báo chưa đọc:', error.message);
+    res.status(500).json({ error: 'Lỗi khi lấy thông báo chưa đọc', message: error.message });
   }
 });
 

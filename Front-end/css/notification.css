@@ -1,6 +1,4 @@
 /* Reset margin/padding */
-
-
 body {
     font-family: 'Poppins', sans-serif;
     margin: 0;
@@ -53,6 +51,7 @@ label {
     display: block;
     margin-top: 15px;
     font-weight: 500;
+    color: #2C3E50;
 }
 
 input, textarea, select {
@@ -62,10 +61,35 @@ input, textarea, select {
     border: 1px solid #BDC3C7;
     border-radius: 6px;
     font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+input:focus, textarea:focus, select:focus {
+    border-color: #007BFF;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
 textarea {
     resize: vertical;
+    min-height: 100px;
+}
+
+/* Target Selection */
+#targetSelection {
+    margin-top: 20px;
+}
+
+.selection-section {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#groupSelection, #classSelection, #studentSelection {
+    display: block;
 }
 
 .input-with-button {
@@ -89,6 +113,7 @@ button {
 
 button:hover {
     background: #0056b3;
+    transform: translateY(-1px);
 }
 
 /* Table */
@@ -105,13 +130,14 @@ table {
 th, td {
     padding: 12px;
     border: 1px solid #ddd;
-    text-align: center;
+    text-align: left;
 }
 
 th {
     background-color: #007BFF;
     color: white;
     text-transform: uppercase;
+    font-weight: 500;
 }
 
 tr:nth-child(even) {
@@ -120,4 +146,15 @@ tr:nth-child(even) {
 
 tr:hover {
     background: #e0f3ff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    table {
+        display: block;
+        overflow-x: auto;
+    }
 }

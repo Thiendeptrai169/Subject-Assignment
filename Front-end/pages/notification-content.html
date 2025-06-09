@@ -1,6 +1,6 @@
-<div class="container">
-    <h2>📨 Gửi Thông Báo</h2>
+<div id="notification-title">Quản lý thông báo</div>
 
+<div class="notification-container">
     <div class="radio-group">
         <label>
             <input type="radio" name="action" value="add" checked> Thêm thông báo
@@ -19,38 +19,79 @@
     </div>
 
     <form id="notificationForm">
-        <label for="title">✏️ Tiêu đề:</label>
-        <input type="text" id="title" required />
+        <div class="form-group">
+            <label for="title">✏️ Tiêu đề:</label>
+            <input type="text" id="title" class="form-control" required />
+        </div>
 
-        <label for="content">📝 Nội dung:</label>
-        <textarea id="content" required></textarea>
+        <div class="form-group">
+            <label for="content">📝 Nội dung:</label>
+            <textarea id="content" class="form-control" required></textarea>
+        </div>
 
-        <label for = "RecipientType">🎯 Gửi đến:</label>
-        <select id="RecipientType" name="RecipientType">
-            <option value="student">Sinh viên</option>
-            <option value="group">Nhóm</option>
-            <option value="class">Lớp</option>
-            
-        </select>
+        <div class="form-group">
+            <label for="RecipientType">🎯 Gửi đến:</label>
+            <select id="RecipientType" name="RecipientType" class="form-control">
+                <option value="CLASS">Lớp</option>
+                <option value="GROUP">Nhóm trong lớp</option>
+                <option value="STUDENT">Sinh viên trong lớp</option>
+            </select>
+        </div>
 
-        <div id="targetSelection"></div>
+        <div id="targetSelection">
+            <!-- Lớp (luôn hiển thị) -->
+            <div id="classSelection" class="selection-section">
+                <div class="form-group">
+                    <label>Chọn lớp:</label>
+                    <select id="classSelect" class="form-control">
+                        <option value="">Chọn lớp</option>
+                    </select>
+                </div>
+            </div>
 
-        <button type="submit">📤 Gửi Thông Báo</button>
+            <!-- Nhóm (chỉ hiện khi gửi nhóm) -->
+            <div id="groupSelection" class="selection-section" style="display: none;">
+                <div class="form-group">
+                    <label>Chọn nhóm:</label>
+                    <select id="groupSelect" class="form-control">
+                        <option value="">Chọn nhóm</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Sinh viên (chỉ hiện khi gửi sinh viên) -->
+            <div id="studentSelection" class="selection-section" style="display: none;">
+                <div class="form-group">
+                    <label>Chọn sinh viên:</label>
+                    <select id="studentSelect" class="form-control">
+                        <option value="">Chọn sinh viên</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-paper-plane"></i> Gửi Thông Báo
+            </button>
+        </div>
     </form>
 
-    <h2>📋 Thông Báo Đã Đăng</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Mã</th>
-                <th>Tiêu đề</th>
-                <th>Người nhận</th>
-                <th>Thời gian</th>
-                <th>Nội dung</th>
-            </tr>
-        </thead>
-        <tbody id="notificationList">
-            
-        </tbody>
-    </table>
+    <div class="notification-list">
+        <h2>📋 Thông Báo Đã Đăng</h2>
+        <table class="data-table-notification">
+            <thead>
+                <tr>
+                    <th>MÃ</th>
+                    <th>TIÊU ĐỀ</th>
+                    <th>NGƯỜI NHẬN</th>
+                    <th>THỜI GIAN</th>
+                    <th>NỘI DUNG</th>
+                </tr>
+            </thead>
+            <tbody id="notificationList">
+            </tbody>
+        </table>
+    </div>
 </div>
+

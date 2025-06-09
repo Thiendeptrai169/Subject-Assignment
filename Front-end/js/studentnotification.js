@@ -9,17 +9,21 @@ const detailContent = document.getElementById("detail-content");
 let notifications = [];
 function initStudentNotificationPage(){
   async function fetchNotifications() {
-    const studentId = 1;
+    const token = localStorage.getItem('token');
     try {
-      const res = await fetch(`${API_BASE}/api/StudentNotifications/${studentId}`);
+      const res = await fetch(`${API_BASE}/api/StudentNotifications/me`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       
       if (!res.ok) {
         throw new Error(`Server trả về lỗi ${res.status}`);
       }
 
       notifications = await res.json();
-      console.log(notifications);
 
+      console.log('Notifications:', notifications);
 
       renderNotificationList();
     } catch (error) {
@@ -30,22 +34,17 @@ function initStudentNotificationPage(){
 
   function renderNotificationList() {
     notificationListEl.innerHTML = "";
-    //console.log('........');
-    if (notifications.length === 0) {
+    if (!notifications || notifications.length === 0) {
       notificationListEl.innerHTML = "<p>Không có thông báo nào.</p>";
       return;
     }
-
     notifications.forEach((noti, index) => {
       const item = document.createElement("div");
       item.className = `notification-item ${noti.isRead ? "read" : "unread"}`;
       item.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 8px;">
-          ${!noti.isRead ? '<span class="dot-indicator"></span>' : ''}
-          <div>
-            <strong>${noti.notificationTitle}</strong><br>
-            <small>${new Date(noti.createdAt).toLocaleString()}</small>
-          </div>
+        <div>
+          <strong>${noti.title}</strong><br>
+          <small>${new Date(noti.createdAt).toLocaleString()}</small>
         </div>
       `;
       item.onclick = () => showDetail(index);
@@ -56,28 +55,24 @@ function initStudentNotificationPage(){
 
   async function showDetail(index) {
     const noti = notifications[index];
-    const studentId = 1;
 
     if (Number(noti.isRead) === 0) {
       try {
+        const token = localStorage.getItem('token');
         await fetch(`${API_BASE}/api/StudentNotifications/${noti.id}/read`, {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ studentId })
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }
         });
-
         // Cập nhật trực tiếp trong mảng gốc
         notifications[index].isRead = 1;
-
         // Vẽ lại danh sách sau khi cập nhật trạng thái đọc
         renderNotificationList();
-        
       } catch (err) {
         console.error("Lỗi khi cập nhật đã đọc:", err);
       }
     }
 
-    detailTitle.textContent = noti.notificationTitle;
+    detailTitle.textContent = noti.title;
     detailSender.textContent = noti.createdByLecturerName || "Giảng viên";
     detailTime.textContent = new Date(noti.createdAt).toLocaleString();
     detailContent.textContent = noti.content;
@@ -95,3 +90,16 @@ function hideDetail() {
   detailView.classList.add("hidden");
   notificationListEl.classList.remove("hidden");
 }
+
+async function fetchUnreadCount() {
+  const token = localStorage.getItem('token');
+  const res = await fetch(`${API_BASE}/api/StudentNotifications/me/unread-count`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  const data = await res.json();
+  console.log('Số thông báo chưa đọc:', data.unreadCount);
+}
+
+window.initStudentNotificationPage = initStudentNotificationPage;

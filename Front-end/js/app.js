@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', ()=>{
     const contentElement = document.getElementById('page-content');
     const sidebar = document.querySelector('.sidebar');
@@ -311,6 +310,127 @@ if (userAvatar && userPopup) {
     }
 
     
+
+    // === XỬ LÝ CHUÔNG THÔNG BÁO ===
+    const notificationDiv = document.querySelector('.notification');
+    const badge = notificationDiv ? notificationDiv.querySelector('.badge') : null;
+    const token = localStorage.getItem('token');
+
+    if (!token && badge) {
+        badge.textContent = '0'; // hoặc badge.style.display = 'none';
+    }
+
+    // Hàm cập nhật số thông báo chưa đọc
+    async function updateUnreadCount() {
+        if (!badge || !token) return;
+        try {
+            const res = await fetch('/api/StudentNotifications/me/unread-count', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            badge.textContent = data.unreadCount || 0;
+        } catch (err) {
+            badge.textContent = '!';
+        }
+    }
+    window.updateUnreadCount = updateUnreadCount;
+    updateUnreadCount();
+
+    // Khi bấm chuông, hiện popup danh sách thông báo chưa đọc
+    if (notificationDiv) {
+        notificationDiv.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            if (!token) {
+                alert('Vui lòng đăng nhập để xem thông báo!');
+                return;
+            }
+            let popup = document.getElementById('notification-popup');
+            if (popup) {
+                popup.remove();
+                return;
+            }
+            popup = document.createElement('div');
+            popup.id = 'notification-popup';
+            popup.style.position = 'absolute';
+            popup.style.top = '40px';
+            popup.style.right = '0';
+            popup.style.background = '#fff';
+            popup.style.border = '1px solid #ccc';
+            popup.style.zIndex = 1000;
+            popup.style.width = '350px';
+            popup.style.maxHeight = '400px';
+            popup.style.overflowY = 'auto';
+            popup.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+
+            // Lấy danh sách thông báo chưa đọc
+            try {
+                const res = await fetch('/api/StudentNotifications/me/unread', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const notifications = await res.json();
+                if (!notifications.length) {
+                    popup.innerHTML = '<div style="padding:10px">Không có thông báo chưa đọc.</div>';
+                } else {
+                    popup.innerHTML = `<div style="padding:8px 16px; font-weight:bold; border-bottom:1px solid #eee;">
+                        Thông báo chưa đọc (${notifications.length})
+                    </div>` + notifications.map(n => `
+                        <div class="noti-item" style="padding:10px; border-bottom:1px solid #eee; cursor:pointer" data-id="${n.id}">
+                            <strong>${n.title}</strong><br>
+                            <small>${new Date(n.createdAt).toLocaleString()}</small>
+                        </div>
+                    `).join('');
+                }
+            } catch (err) {
+                popup.innerHTML = '<div style="padding:10px">Lỗi khi tải thông báo.</div>';
+            }
+            notificationDiv.appendChild(popup);
+
+            // Khi bấm vào 1 thông báo, chuyển sang trang chi tiết
+            popup.addEventListener('click', async (e) => {
+                const item = e.target.closest('.noti-item');
+                if (item) {
+                    const id = item.getAttribute('data-id');
+                    // Gọi API đánh dấu đã đọc
+                    try {
+                        await fetch(`/api/StudentNotifications/${id}/read`, {
+                            method: "PUT",
+                            headers: { "Authorization": `Bearer ${token}` }
+                        });
+                        if (window.updateUnreadCount) window.updateUnreadCount();
+                    } catch (err) {
+                        // Có thể báo lỗi nếu muốn
+                        console.error("Lỗi khi đánh dấu đã đọc:", err);
+                    }
+                    // Xóa popup trước khi chuyển trang
+                    popup.remove();
+                    window.location.href = `/studentnotification-content.html?id=${id}`;
+                }
+            });
+        });
+
+        // Đóng popup khi click ra ngoài
+        document.addEventListener('click', (e) => {
+            const popup = document.getElementById('notification-popup');
+            if (popup && !popup.contains(e.target) && !e.target.closest('.notification')) {
+                popup.remove();
+            }
+        });
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const popup = document.getElementById('notification-popup');
+            if (popup) popup.remove();
+        }
+    });
+
+    localStorage.setItem('notificationRead', Date.now());
+
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'notificationRead') {
+        if (window.updateUnreadCount) window.updateUnreadCount();
+      }
+    });
 
 });
 
