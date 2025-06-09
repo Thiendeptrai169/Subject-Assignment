@@ -104,12 +104,14 @@ router.post('/', authenticateToken, authorizeRole([1]), async (req, res) => {
             .input('StudentCodeReceive', sql.VarChar, studentCode || null)
             .input('CreatedAt', sql.DateTime, new Date())
             .query(`
+
                 DECLARE @InsertedIds TABLE (Id INT);
                 INSERT INTO Notifications 
                     (Title, Content, CreatedAt, SenderType, Sender, ClassIdReceive, GroupIdReceive, StudentCodeReceive)
                 OUTPUT INSERTED.Id INTO @InsertedIds
                 VALUES (@Title, @Content, @CreatedAt, @SenderType, @Sender, @ClassIdReceive, @GroupIdReceive, @StudentCodeReceive);
                 SELECT Id FROM @InsertedIds;
+
             `);
 
         const notificationId = result.recordset[0].Id;

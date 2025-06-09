@@ -24,6 +24,7 @@ router.get('/group-detail/:groupId', async (req, res) => {
                     P.ProjectName,
                     SJ.SubjectCode,
                     SJ.SubjectName,
+
                     S.StudentCode,
                     S.FullName,
                     S.Gender,
@@ -46,6 +47,7 @@ router.get('/group-detail/:groupId', async (req, res) => {
                     S.FullName;
 
 
+
             `);
 
         const records = result.recordset;
@@ -65,8 +67,10 @@ router.get('/group-detail/:groupId', async (req, res) => {
                 StudentCode: row.StudentCode,
                 DateOfBirth: row.DateOfBirth,
                 ClassCode: row.ClassCode,
+
                 StudentRole: row.StudentRole,
                 JoinGroupDate: row.JoinGroupDate
+
             }))
         };
 

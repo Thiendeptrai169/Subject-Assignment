@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+
 const { sql, pool } = require('../config/db');
 const { authenticateToken, attachUserInfo, authorizeRole } = require('../middleware/auth');
 
@@ -56,6 +57,7 @@ router.get('/', authenticateToken, attachUserInfo, authorizeRole([1]), async (re
             message: 'Lỗi server khi lấy danh sách đề tài',
             error: process.env.NODE_ENV === 'development' ? error.message : undefined // Chỉ trả chi tiết lỗi trong môi trường dev
         });
+
     }
 });
 

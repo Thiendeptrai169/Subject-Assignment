@@ -1,3 +1,4 @@
+
 // Các hàm render được tách ra bên ngoài (giữ nguyên)
 function renderReportDetails(reports) {
   const container = document.getElementById('reportDetailsModalBody');

@@ -152,7 +152,9 @@
             // Sửa thông báo
             await fetchWithAuth(`/api/notifications/${editingNotificationId}`, {
                 method: 'PUT',
+
                 body: JSON.stringify(body)
+
             });
             alert('Đã cập nhật thông báo!');
             editingNotificationId = null;
@@ -260,6 +262,8 @@
 
     window.initNotificationPage = initNotificationPage;
 })();
+
 document.addEventListener("DOMContentLoaded", function () {
     initNotificationPage();
 });
+

@@ -22,9 +22,11 @@ document.getElementById('cms_bm_frm_login').addEventListener('submit', async (ev
         if (!response.ok) {
             throw new Error(data.message || 'Có lỗi xảy ra');
         }
+
         localStorage.clear();
         localStorage.setItem('token', data.token);
         localStorage.setItem('role', data.role);
+
 
         const savedToken = localStorage.getItem('token');
         console.log('Token after save:', savedToken);

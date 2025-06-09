@@ -10,9 +10,11 @@
     <link rel="stylesheet" href="../css/bootstrap.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- <link rel="stylesheet" href="../css/groups.css"> -->
+
      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 </head>
 
 
@@ -130,6 +132,7 @@
                         Quản lý nhóm
                     </button>
                 </a>
+
                  <a href="/lecturer-grading.html" id="grade-management-link" class="sidebar-link">
                     <button class="sidebar-btn">
                         <svg id="icon-sidebar" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24"
@@ -140,6 +143,7 @@
                         Quản lý điểm
                     </button>
                 </a>
+
 
                 <!-- Thêm link/nút khác nếu có -->
 
@@ -218,6 +222,7 @@
     </div>
 
    <script>
+
         // Hàm lấy thông tin người dùng từ API
         async function fetchUserInfo() {
             const userInfoElement = document.getElementById('userInfo');
@@ -274,7 +279,9 @@
         }
         // Định tuyến "Quản lý nhóm" tùy theo vai trò và gọi API user info
         document.addEventListener('DOMContentLoaded', () => {
+
             const gradeLink = document.getElementById('grade-management-link');
+
             const role = localStorage.getItem('role');
             console.log('Role:', role);
             const link = document.getElementById('group-management-link');
@@ -282,21 +289,24 @@
                 link.href = '/lecturer-subjects.html';
             } else if (role === '2') {
                 link.href = '/group-page.html';
+
                 gradeLink.style.display = "none";
             }
 
             // Gọi API để cập nhật thông tin người dùng
             // fetchUserInfo(); 
+
         });
     </script>
 
     <script src="/js/app.js"></script>
+
     <script src="/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="./js/lecturer-subjects.js"></script>
 
     
 
-    
+
 </body>
 
 

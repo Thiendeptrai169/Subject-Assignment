@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { sql, pool, poolConnect } = require('../config/db');
+
 const { authenticateToken, attachUserInfo, authorizeRole } = require('../middleware/auth');
 
 //router for filter
@@ -8,6 +9,7 @@ router.get('/filter',authenticateToken, attachUserInfo, async (req, res) => {
   const {subjectCodeFilter}  = req.query;
   console.log('Received subjectCodeFilter:', subjectCodeFilter);
   const loggedInStudentCode = req.user.StudentCode; //hard code
+
     try {
         await poolConnect;
         const request = pool.request();
@@ -98,7 +100,9 @@ router.get('/filter',authenticateToken, attachUserInfo, async (req, res) => {
 
 
 //router for POST info grouptudent
+
 router.post('/register', authenticateToken, attachUserInfo, async (req, res) => {
+
     const {groupName, subjectClassProjectId, members} = req.body;
     const registrantStudentCode = 'N22DCCN001'; //hard code
     
@@ -116,8 +120,10 @@ router.post('/register', authenticateToken, attachUserInfo, async (req, res) => 
 
     
 
+
     const expectedLeaderRole = "Nhóm trưởng";
     const expectedMemberRole = "Thành viên"; 
+
     const allowedRoles = [expectedLeaderRole, expectedMemberRole]; 
     let studentCodesFromRequest  = [];
     let leaderStudentCode = null;
@@ -319,6 +325,7 @@ router.post('/register', authenticateToken, attachUserInfo, async (req, res) => 
 router.get('/managed', authenticateToken, attachUserInfo, async (req, res) => {
     const loggedInLecturerCode = req.user.lecturerCode; // Hardcode 
 
+
     try {
         await poolConnect;
         const request = pool.request();
@@ -358,8 +365,10 @@ router.get('/managed', authenticateToken, attachUserInfo, async (req, res) => {
     }
 });
 
+
 router.get('/my-templates', authenticateToken, attachUserInfo, async (req, res) => {
     const loggedInLecturerCode = req.user.lecturerCode; 
+
 
     if (!loggedInLecturerCode) {
         return res.status(401).json({ message: 'Không xác định được thông tin giảng viên. Yêu cầu đăng nhập.' });
@@ -531,9 +540,11 @@ router.get('/my-templates', authenticateToken, attachUserInfo, async (req, res) 
 
 // Trong projects.js
 
+
 router.post('/templates', authenticateToken, attachUserInfo, async (req, res) => {
 
     const loggedInLecturerCode = req.user.lecturerCode; 
+
 
     const { projectCode, projectName, description } = req.body;
 
@@ -613,8 +624,10 @@ router.post('/templates', authenticateToken, attachUserInfo, async (req, res) =>
     }
 });
 
+
 router.post('/assign-to-class', authenticateToken, attachUserInfo, async (req, res) => {
     const loggedInLecturerCode = req.user.lecturerCode;
+
 
     const {
         projectCode,        // Mã của Project Template đã tồn tại
@@ -690,8 +703,10 @@ router.post('/assign-to-class', authenticateToken, attachUserInfo, async (req, r
 
 
 
+
 router.put('/managed/:subjectClassProjectId', authenticateToken, attachUserInfo, async (req, res) => {
     const loggedInLecturerCode = req.user.lecturerCode;
+
     const { subjectClassProjectId } = req.params;
 
     const {
@@ -778,6 +793,7 @@ router.put('/managed/:subjectClassProjectId', authenticateToken, attachUserInfo,
 // Trong projects.js (hoặc file riêng cho project templates)
 
 router.put('/templates/:projectCode', authenticateToken, attachUserInfo, async (req, res) => {
+
     // const loggedInLecturerCode = req.user.lecturerCode; // Hoặc kiểm tra quyền admin
     const { projectCode } = req.params;
     const { projectName, description } = req.body;
@@ -847,8 +863,10 @@ router.put('/templates/:projectCode', authenticateToken, attachUserInfo, async (
 
 
 
+
 router.delete('/managed/:subjectClassProjectId', authenticateToken, attachUserInfo, async (req, res) => {
     const loggedInLecturerCode = req.user.lecturerCode;
+
     const { subjectClassProjectId } = req.params;
 
     if (isNaN(parseInt(subjectClassProjectId))) {
@@ -928,7 +946,9 @@ router.delete('/managed/:subjectClassProjectId', authenticateToken, attachUserIn
 
 
 
+
 router.delete('/templates/:projectCode', authenticateToken, attachUserInfo, async (req, res) => {
+
     // const loggedInUser = req.user; // Lấy thông tin người dùng và vai trò từ auth
     // Giả sử chỉ admin hoặc người tạo mới có quyền xóa, hoặc chỉ giảng viên tạo ra nó
     // const isAdmin = loggedInUser.role === 'ADMIN';

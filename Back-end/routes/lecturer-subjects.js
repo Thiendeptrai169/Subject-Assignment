@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { sql, pool, poolConnect } = require('../config/db');
+
 const { authenticateToken, attachUserInfo } = require('../middleware/auth');
 
  // Lấy danh sách nhóm sinh viên mà giảng viên đó phụ trách
@@ -45,3 +46,4 @@ router.get('/', authenticateToken, attachUserInfo, async (req, res) => {
 });
 
 module.exports = router;
+

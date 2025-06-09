@@ -18,7 +18,9 @@ async function authenticateToken(req, res, next) {
   }
 }
 
+
 // Lấy thêm thông tin user từ DB, gọi sau authenticateToken
+
 async function attachUserInfo(req, res, next) {
   try {
     await poolConnect;
