@@ -33,9 +33,9 @@
 
             <th>Mã Đề Tài</th>
             <th>Tên Đề Tài</th>
-            <th>SL Min</th> 
-            <th>SL Max</th> 
-            <th>Slot</th>
+            <th>Giới hạn SV/nhóm</th>
+            <th>Số SV GV có thể thêm vào nhóm</th>
+            <th>Giới hạn nhóm/môn</th>
             <th>Môn Học</th>
             <th>Lớp</th> 
             <th>Ngày Bắt Đầu</th>
@@ -83,60 +83,67 @@
 <div class="popup-overlay" style="display: none;"></div>
 <div class="create-project-popup" style="display: none;">
     <div class="popup-header">
+        <h2 id="popup-title">Tạo & Gán Đề Tài</h2>
         <button class="close-popup-btn"><i class="fas fa-times"></i></button>
     </div>
 
-    <div class="popup-tabs" >
-        <button class="tab-btn active" data-tab="tab-create-edit">Tạo/ Sửa đề tài</button>
-        <button class="tab-btn" data-tab="tab-assign">Gán đề tài cho lớp/môn</button>
+    <div class="popup-tabs">
+        <button class="tab-btn active" data-tab="tab-create-edit-template">1. Thông Tin Đề Tài Mẫu</button>
+        <button class="tab-btn" data-tab="tab-assign-to-class">2. Gán Cho Lớp</button>
     </div>
 
-    <div class="popup-content" id = "tab-create-edit">
-        <form id="create-project-form">
+    <div class="popup-content active" id="tab-create-edit-template" style="display: block;">
+        <form id="project-template-form">
+            <h4>Thông Tin Đề Tài Mẫu</h4>
             <div class="form-group">
-                <label for="project-name">Tên đề tài</label>
-                <input type="text" id="project-name" class="form-control" required>
+                <label for="new-project-code">Mã Đề Tài Mẫu (GV tự đặt nếu tạo mới)</label>
+                <input type="text" id="new-project-code" class="form-control" placeholder="Ví dụ: WEB_ECOM_ADV">
             </div>
-
-            <div class="form-row">
-                <div class="form-group half">
-                    <label for="min-students">SL SV Tối thiểu</label>
-                    <input type="number" id="min-students" class="form-control" min="1" required>
-                </div>
-
-                <div class="form-group half">
-                    <label for="max-students">SL SV Tối đa</label>
-                    <input type="number" id="max-students" class="form-control" min="1" required>
-                </div>
-            </div>
-
             <div class="form-group">
-                <label for="project-description">Mô tả</label>
-                <textarea id="project-description" class="form-control" rows="3"></textarea>
+                <label for="project-template-name">Tên Đề Tài Mẫu</label>
+                <input type="text" id="project-template-name" class="form-control" required>
             </div>
-
-            <div class="form-actions">
-                <button id="submit" class="btn btn-primary">Thêm</button>
-                <button id="update" style="display:none;">Cập nhật</button>
-                <button type="button" id="cancel-edit-btn" class="btn btn-secondary" 
-                style="display:none;">Hủy Sửa</button>
+            <div class="form-group">
+                <label for="project-template-description">Mô Tả Đề Tài Mẫu</label>
+                <textarea id="project-template-description" class="form-control" rows="3"></textarea>
             </div>
+            <div class="popup-actions" style="text-align: right; padding-top: 15px; border-top: 1px solid #eee; margin-top:15px;">
+            <button type="button" id="btn-cancel-popup" class="btn btn-secondary">Hủy</button> 
+            <button type="button" id="btn-cancel-edit-template" class="btn btn-outline-secondary" style="display:none;">Hủy Sửa Đề Tài</button> 
+            <button type="button" id="btn-save-update-template" class="btn btn-primary">Lưu Đề Tài Mới</button> 
         </form>
-        <div class="project-existing">
-
+        <hr>
+        <div class="project-existing-list" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
+            <div class="project-row header">
+                 <div>Mã ĐT Mẫu</div>
+                 <div>Tên đề tài Mẫu</div>
+                 <div>Mô Tả Mẫu</div>
+                 <div>Hành động</div>
+            </div>
         </div>
     </div>
 
-    <!-- <hr>
-    <h4>Chọn đề tài có sẵn để sửa:</h4>  -->
+    <div class="popup-content" id="tab-assign-to-class" style="display: none;">
+        <form id="assign-to-class-form">
+            <h4>Gán Đề Tài Cho Lớp Học Phần</h4>
+            <div class="form-group">
+                <label for="assign-subject">Chọn Môn Học (Bạn dạy)</label>
+                <select id="assign-subject" class="form-control" required>
+                    <option value="">-- Chọn Môn --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="assign-class">Chọn Lớp (Bạn dạy môn đó)</label>
+                <select id="assign-class" class="form-control" required>
+                    <option value="">-- Chọn Lớp --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="assign-max-groups">Số Nhóm Tối Đa Được Đăng Ký (cho đề tài này ở lớp này)</label>
+                <input type="number" id="assign-max-groups" class="form-control" min="0" placeholder="Để trống = không giới hạn">
+            </div>
+        </form>
+    </div>
 
-    
-</div>
 
-<div class="popup-tab-content" id="tab-assign">
-    
-    <p style="padding: 20px; text-align: center;">(Giao diện gán đề tài cho lớp/môn)</p>
-    
-</div>
-    
 </div>

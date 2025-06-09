@@ -26,7 +26,7 @@ router.get('/group-detail/:groupId', async (req, res) => {
                     UP.FullName,
                     UP.DateOfBirth,
                     S.Id AS StudentId,
-                    C.ClassName,
+                    C.ClassCode,
                     GM.StudentRole
                 FROM StudentGroups SG
                 JOIN SubjectProjects SP ON SG.SubjectProjectsId = SP.Id
@@ -56,7 +56,7 @@ router.get('/group-detail/:groupId', async (req, res) => {
                 FullName: row.FullName,
                 StudentId: row.StudentId,
                 DateOfBirth: row.DateOfBirth,
-                ClassName: row.ClassName,
+                ClassCode: row.ClassCode,
                 StudentRole: row.StudentRole
             }))
         };

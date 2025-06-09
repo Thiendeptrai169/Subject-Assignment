@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
             console.log(`Đã tải ${scriptUrl}.`);
             loadedScripts[scriptUrl] = true;
 
-            if(scriptUrl === '/script.js' && typeof initMainPage === 'function'){
+            if(scriptUrl === '/script.js' && typeof window.initMainPage === 'function'){
                 initMainPage();
 
             }else if (scriptUrl === '/js/profile-script.js' && typeof initProfilePage === 'function'){
@@ -310,7 +310,37 @@ if (userAvatar && userPopup) {
         loadContent(initialUrl, false);
     }
 
-    
+    async function loadUserShortInfo() {
+        try {
+            const response = await fetch('/api/profiles');
+            if (!response.ok) {
+                console.error('Lỗi khi lấy thông tin người dùng');
+                return;
+            }
+            const data = await response.json();
+            const fullName = data.FullName;
+            const userId = data.StudentId;
+
+            // Gán vào user-popup
+            const popupNameEl = document.querySelector('#popup-name');
+            const popupIdEl = document.querySelector('#popup-id');
+
+            if (popupNameEl) popupNameEl.textContent = fullName;
+            if (popupIdEl) popupIdEl.textContent = userId;
+
+            // Gán vào sidebar
+            const sidebarNameEl = document.querySelector('#sidebar-name');
+            const sidebarIdEl = document.querySelector('#sidebar-id');
+
+            if (sidebarNameEl) sidebarNameEl.textContent = fullName;
+            if (sidebarIdEl) sidebarIdEl.textContent = userId;
+
+        } catch (error) {
+            console.error('Lỗi khi gọi API /api/profiles:', error);
+        }
+    }
+
+    loadUserShortInfo();
 
 });
 

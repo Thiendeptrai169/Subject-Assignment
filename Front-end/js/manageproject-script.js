@@ -4,52 +4,18 @@ if (typeof window.managedProjectsData === 'undefined') {
     window.managedProjectsData = []; 
 }
 
+if (typeof window.myProjectTemplates === 'undefined') {
+    window.myProjectTemplates = [];
+}
 
-const baseProjects = [
-    {
-        projectCode: 101, 
-        name: 'Xây dựng website bán hàng trực tuyến',
-        min: 1,
-        max: 5,
-        description: 'Phát triển website thương mại điện tử bằng PHP/MySQL'
-    },
-    {
-        projectCode: 102,
-        name: 'Ứng dụng quản lý sinh viên', // Same name as below, distinct ID
-        min: 1,
-        max: 3,
-        description: 'Sử dụng pandas và matplotlib để phân tích dữ liệu'
-    },
-    {
-        projectCode: 103, // Even if data looks similar, base projects usually have unique IDs
-        name: 'Ứng dụng quản lý sinh viên',
-        min: 1,
-        max: 3,
-        description: 'Sử dụng pandas và matplotlib để phân tích dữ liệu'
-        // You might want slightly different descriptions in reality, e.g., focus on UI vs logic
-    },
-    {
-        projectCode: 104,
-        name: 'Ứng dụng quản lý sinh viên',
-        min: 1,
-        max: 3,
-        description: 'Sử dụng pandas và matplotlib để phân tích dữ liệu'
-    },
-    {
-        projectCode: 105,
-        name: 'Phân tích Hệ thống Quản lý Thư viện',
-        min: 2,
-        max: 4,
-        description: 'Phân tích yêu cầu, thiết kế use case và class diagram cho hệ thống thư viện.'
-    },
-    {
-        projectCode: 106,
-        name: 'Tìm hiểu về React Native',
-        min: 1,
-        max: 2,
-        description: 'Nghiên cứu và xây dựng một ứng dụng di động đơn giản bằng React Native.'
-    }
-];
+if (typeof window.isManageProjectPageInitialized === 'undefined') { 
+    window.isManageProjectPageInitialized = false;
+}
+
+let currentActionData = {
+    projectTemplate: null, // { ProjectCode, ProjectName, Description, isNew: true/false }
+};
+
 
 window.initManageProjectPage = function() {
     console.log("DEBUG: === initManageProjectPage() started ===");
@@ -67,23 +33,32 @@ window.initManageProjectPage = function() {
     const popupOverlay = document.querySelector('.popup-overlay');     
     const popupBox = document.querySelector('.create-project-popup'); 
     const closePopupBtn = document.querySelector('.close-popup-btn');  
+    const popupTitle = document.getElementById('popup-title');
+
     const tabs = popupBox.querySelectorAll('.popup-tabs .tab-btn');
-    const tabContents = popupBox.querySelectorAll('.popup-content');
-
-    const createEditTabContent = document.getElementById('tab-create-edit');
-    const createForm  = document.getElementById('create-project-form');
-    const updateBtn = document.getElementById('update');
-    const createSubmitBtn = document.getElementById('submit');  
-    const cancelEditBtn = document.getElementById('cancel-edit-btn'); 
-    const existingProjects = document.querySelector('.project-existing');
-    const projectNameInput = document.getElementById('project-name');
-    const minStudentsInput = document.getElementById('min-students');
-    const maxStudentsInput = document.getElementById('max-students');
-    const descriptionInput = document.getElementById('project-description');
+    const tabTemplateContent = document.getElementById('tab-create-edit'); 
+    const tabAssignContent = document.getElementById('tab-assign');    
 
 
-    const assignTabContent = document.getElementById('tab-assign');
+    const formTemplate = document.getElementById('project-template-form');
+    const inputNewProjectCode = document.getElementById('new-project-code');
+    const inputProjectName = document.getElementById('project-template-name');
+    const inputProjectDescription = document.getElementById('project-template-description');
+    const existingProjectsListDiv = document.querySelector('.project-existing-list');
 
+    const formAssign = document.getElementById('assign-to-class-form');
+    const selectAssignSubject = document.getElementById('assign-subject');
+    const selectAssignClass = document.getElementById('assign-class');
+    const inputAssignMaxRegisteredGroups = document.getElementById('assign-max-groups');
+
+    const btnNextOrAssign = document.getElementById('btn-next-or-assign'); // Sẽ đổi text
+    const btnCancelEditTemplate = document.getElementById('btn-cancel-edit-template');
+    const btnSaveOrUpdateTemplate = document.getElementById('btn-save-update-template'); 
+    const btnUpdateAssignment = document.getElementById('btn-update-assignment');
+    const btnCancelPopup = document.getElementById('btn-cancel-popup');
+
+
+    let currentPopupMode = 'CREATE_NEW_TEMPLATE';
     const createCell = (text, align = 'left') => {
         const cell = document.createElement("td");
         cell.textContent = text !== null && text !== undefined && text !== '' ? text : 'N/A';
@@ -102,127 +77,205 @@ window.initManageProjectPage = function() {
     };
 
 
-    let currentPopupMode = 'create';
-    let currentEditingProjectCode = '';
-    function switchToCreateMode(clearForm = true) {
-        currentPopupMode = 'create';
-        currentEditingProjectCode = null;
-        if (clearForm) {
-            createForm.reset();
-       }
-       createSubmitBtn.style.display = 'inline-block';
-       updateBtn.style.display = 'none';
-       cancelEditBtn.style.display = 'none';
-       existingProjects.querySelectorAll('.project-row.selected').forEach(row => row.classList.remove('selected'));
+     function resetTemplateForm() {
+        if(formTemplate) formTemplate.reset();
+        if(inputNewProjectCode) inputNewProjectCode.disabled = false;
+        if(inputNewProjectCode) inputNewProjectCode.value = ''; 
+        if(inputProjectName) inputProjectName.value = '';
+        if(inputProjectDescription) inputProjectDescription.value = '';
+        currentActionData.projectTemplate = null;
+        if(existingProjectsListDiv) existingProjectsListDiv.querySelectorAll('.project-row.selected').forEach(r => r.classList.remove('selected'));
     }
 
 
-    function switchToUpdateMode(projectData) {
-        //console.log("Switching to update mode for project ID:", projectData.projectId);
-        currentPopupMode = 'update';
-        currentEditingProjectCode = projectData.projectCode; 
+     function configureTemplateTabMode() {
+        if (currentPopupMode === 'CREATE_NEW_TEMPLATE' && (!currentActionData.projectTemplate || !currentActionData.projectTemplate.isPotentiallyCreating) ) {
+            resetTemplateForm(true); 
+        } else if (currentPopupMode === 'EDIT_EXISTING_TEMPLATE' && currentActionData.projectTemplate) {
+           
+            if(inputNewProjectCode) {
+                inputNewProjectCode.value = currentActionData.projectTemplate.ProjectCode;
+                inputNewProjectCode.disabled = true; 
+            }
+            if(inputProjectName) inputProjectName.value = currentActionData.projectTemplate.ProjectName;
+            if(inputProjectDescription) inputProjectDescription.value = currentActionData.projectTemplate.Description;
+        }
 
+        if (currentPopupMode === 'CREATE_NEW_TEMPLATE') {
+            if (popupTitle) popupTitle.textContent = 'Tạo Đề Tài Mẫu Mới';
+            if (inputNewProjectCode) inputNewProjectCode.disabled = false;
+            if (btnSaveOrUpdateTemplate) {
+                btnSaveOrUpdateTemplate.textContent = 'Lưu Đề Tài Mới';
+                btnSaveOrUpdateTemplate.style.display = 'inline-block';
+            }
+            if (btnCancelEditTemplate) btnCancelEditTemplate.style.display = 'none'; 
+        } else if (currentPopupMode === 'EDIT_EXISTING_TEMPLATE') {
+            if (popupTitle) popupTitle.textContent = `Sửa Đề Tài Mẫu: ${currentActionData.projectTemplate?.ProjectCode || ''}`;
+            if (inputNewProjectCode) inputNewProjectCode.disabled = true;
+            if (btnSaveOrUpdateTemplate) {
+                btnSaveOrUpdateTemplate.textContent = 'Cập Nhật Đề Tài';
+                btnSaveOrUpdateTemplate.style.display = 'inline-block';
+            }
+            if (btnCancelEditTemplate) btnCancelEditTemplate.style.display = 'inline-block'; 
+        }
 
-        projectNameInput.value = projectData.projectName || '';
-        minStudentsInput.value = projectData.minStudents || '';
-        maxStudentsInput.value = projectData.maxStudents || '';
-        descriptionInput.value = projectData.description || '';
-
-        createSubmitBtn.style.display = 'none';
-        updateBtn.style.display = 'inline-block';
-        cancelEditBtn.style.display = 'inline-block';
-
+        if(btnCancelPopup) btnCancelPopup.style.display = 'inline-block'; 
         switchTab(0);
     }
 
 
-    function showPopup(mode = 'create', data = null) {
-        console.log(`Showing popup in mode: ${mode}`);
-        if (mode === 'update' && data) {
-            switchToUpdateMode(data);
+
+    function showPopupOverlay() {
+        const popupOverlay = document.querySelector('.popup-overlay');
+        const popupBox = document.querySelector('.create-project-popup');
+
+        if (popupOverlay) {
+            popupOverlay.style.display = 'block';
         } else {
-            switchToCreateMode(true);
+            console.error("Element .popup-overlay không tìm thấy!");
         }
+        if (popupBox) {
+            popupBox.style.display = 'block';
+        } else {
+            console.error("Element .create-project-popup không tìm thấy!");
+        }
+    }   
 
-        
-        fetchAndRenderExistingProjects();
-
-        popupOverlay.style.display = 'block';
-        popupBox.style.display = 'block';
-         switchTab(0);
+   function openCreateNewTemplatePopup() {
+        fetchAndRenderMyProjectTemplates(); 
+        currentPopupMode = 'CREATE_NEW_TEMPLATE';
+        currentActionData.projectTemplate = { isPotentiallyCreating: true }; 
+        configureTemplateTabMode();
+        currentActionData.projectTemplate = null; 
+        showPopupOverlay();
     }
 
-    function closePopup() {
-        //console.log("Closing popup");
-        popupOverlay.style.display = 'none';
-        popupBox.style.display = 'none';
-        switchToCreateMode(true); 
+   function closePopup() {
+        if(popupOverlay) popupOverlay.style.display = 'none';
+        if(popupBox) popupBox.style.display = 'none';
+        resetTemplateForm(); 
+        currentPopupMode = 'CREATE_NEW_TEMPLATE'; 
     }
 
 
     function switchTab(activeIndex) {
+
         tabs.forEach((tab, index) => {
-            const tabId = tab.dataset.tab; 
-            const correspondingContent = document.getElementById(tabId);
+            const contentId = tab.dataset.tab;
+            const contentElement = document.getElementById(contentId);
+            if (!contentElement) return;
 
-            if (index === activeIndex) {
+            if (index === 0 && activeIndex === 0) { 
                 tab.classList.add('active');
-                if (correspondingContent) {
-                    correspondingContent.classList.add('active');
-                    correspondingContent.style.display = 'block'; 
-                }
-            
-                 if (index === 0) {
-                     if (currentPopupMode === 'update') {
-                         createSubmitBtn.style.display = 'none';
-                         updateBtn.style.display = 'inline-block';
-                         cancelEditBtn.style.display = 'inline-block';
-                     } else {
-                         createSubmitBtn.style.display = 'inline-block';
-                         updateBtn.style.display = 'none';
-                         cancelEditBtn.style.display = 'none';
-                     }
-                 }
-
+                contentElement.style.display = 'block';
             } else {
                 tab.classList.remove('active');
-                 if (correspondingContent) {
-                     correspondingContent.classList.remove('active');
-                     correspondingContent.style.display = 'none'; 
-                 }
+                contentElement.style.display = 'none';
             }
         });
+        if (activeIndex !== 0) {
+             console.warn("Đang cố gắng chuyển sang tab không được hỗ trợ trong logic hiện tại của Tab 1.");
+             tabs[0].classList.add('active'); 
+             if(tabTemplateContent) tabTemplateContent.style.display = 'block';
+             if(tabAssignContent) tabAssignContent.style.display = 'none';
+        }
+        console.log(`Switched to tab index (forced): ${activeIndex === 0 ? 0 : 'invalid -> 0'}`);
     }
 
 
+
+    async function fetchAndRenderMyProjectTemplates() {
+         if (!existingProjectsListDiv) { console.warn("Element .project-existing-list not found for fetchAndRenderMyProjectTemplates"); return; }
+        existingProjectsListDiv.innerHTML = '<div>Đang tải...</div>'; 
+        try {
+            const response = await fetch(`/api/projects/my-templates`);
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                throw new Error(errData.message || `Lỗi HTTP ${response.status}`);
+            }
+            window.myProjectTemplates = await response.json();
+            existingProjectsListDiv.innerHTML = ''; 
+            const header = document.createElement('div');
+            header.className = 'project-row header';
+            header.innerHTML = `
+                 <div>Mã ĐT Mẫu</div>
+                 <div>Tên đề tài Mẫu</div>
+                 <div>Mô Tả Mẫu</div>
+                 <div>Hành động</div>`;
+            existingProjectsListDiv.appendChild(header);
+
+            if (!window.myProjectTemplates || window.myProjectTemplates.length === 0) {
+                existingProjectsListDiv.innerHTML += '<div style="text-align: center; padding:10px;">Bạn chưa tạo đề tài mẫu nào.</div>';
+                return;
+            }
+            window.myProjectTemplates.forEach(proj => {
+                const row = document.createElement('div');
+                row.className = 'project-row';
+                row.dataset.projectCode = proj.ProjectCode;
+                row.dataset.projectName = proj.ProjectName;
+                row.dataset.description = proj.Description || '';
+
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'template-actions';
+
+                const editTemplateButton = document.createElement('button');
+                editTemplateButton.textContent = 'Sửa Mẫu Này'; 
+                editTemplateButton.className = 'btn-edit-template btn-small';
+                editTemplateButton.type = 'button';
+                editTemplateButton.onclick = () => {
+                     currentActionData.projectTemplate = { ProjectCode: proj.ProjectCode, ProjectName: proj.ProjectName, Description: proj.Description || '' };
+                     currentPopupMode = 'EDIT_EXISTING_TEMPLATE';
+                     configureTemplateTabMode();
+                };
+                actionsDiv.appendChild(editTemplateButton);
+
+                row.innerHTML = `
+                     <div>${proj.ProjectCode || 'N/A'}</div>
+                     <div>${proj.ProjectName || 'N/A'}</div>
+                     <div>${proj.Description || 'N/A'}</div>
+                     <div class="template-actions-placeholder"></div>`;
+                const placeholder = row.querySelector('.template-actions-placeholder');
+                if(placeholder) placeholder.appendChild(actionsDiv);
+                else row.appendChild(actionsDiv);
+
+                existingProjectsListDiv.appendChild(row);
+            });
+        } catch (error) {
+            console.error("Error fetching my project templates:", error);
+            existingProjectsListDiv.innerHTML = `<div style="color: red; text-align:center; padding:10px;">Lỗi tải: ${error.message}</div>`;
+        }
+    }
+
     function renderProjectTable(projects) {
-        projectListBody.innerHTML = ""; 
+        if (!projectListBody) return;
+        projectListBody.innerHTML = "";
         if (!projects || projects.length === 0) {
-            projectListBody.innerHTML = '<tr><td colspan="11" style="text-align:center; padding: 20px;">Bạn chưa có đề tài nào được quản lý trong kỳ này hoặc không có kết quả phù hợp.</td></tr>';
+            projectListBody.innerHTML = '<tr><td colspan="11" style="text-align:center; padding: 20px;">Bạn chưa có đề tài nào được quản lý hoặc không có kết quả phù hợp.</td></tr>';
             return;
         }
 
         projects.forEach((project) => {
             const row = document.createElement("tr");
-            row.dataset.subjectProjectId = project.SubjectProjectId;
-            // row.dataset.projectName = project.ProjectName;
-            // row.dataset.minStudents = project.MinStudents;
-            // row.dataset.maxStudents = project.MaxStudents;
-            // row.dataset.description = project.Description;
+            row.dataset.projectData = JSON.stringify(project);
 
-            row.appendChild(createCell(project.ProjectCode));        
-            row.appendChild(createCell(project.ProjectName));        
-            row.appendChild(createCell(project.MinStudents, 'center'));  
-            row.appendChild(createCell(project.MaxStudents, 'center')); 
+            row.appendChild(createCell(project.ProjectCode));
+            row.appendChild(createCell(project.ProjectName));
+            row.appendChild(createCell(project.TotalStudentsOfGroup, 'center')); // SL SV/Nhóm (SV tự ĐK)
+            let lecturerCanAdd = 0;
+            if (typeof project.MaxStudentsOfGroup === 'number' && typeof project.TotalStudentsOfGroup === 'number') {
+                lecturerCanAdd = Math.max(0, project.MaxStudentsOfGroup - project.TotalStudentsOfGroup);
+            } else {
+                lecturerCanAdd = 'N/A';
+            }
+        row.appendChild(createCell(lecturerCanAdd, 'center'));
 
+            row.appendChild(createCell(`${project.CurrentRegisteredGroups || 0}/${project.MaxRegisteredGroups !== null ? project.MaxRegisteredGroups : 'Không giới hạn'}`, 'center')); // Chỗ trống
 
-            row.appendChild(createCell(project.MaxRegisteredGroups, 'center')); 
-
-            row.appendChild(createCell(project.SubjectName));      
-            row.appendChild(createCell(project.ClassCode));       
-            row.appendChild(createCell(formatDate(project.RegistrationStartDate), 'center'));  // Ngày BĐ (Của SubjectProject)
-            row.appendChild(createCell(formatDate(project.RegistrationEndDate), 'center'));    // Ngày KT (Của SubjectProject)
-            row.appendChild(createCell(project.Description));    
+            row.appendChild(createCell(project.SubjectName));
+            row.appendChild(createCell(project.ClassCode));
+            row.appendChild(createCell(formatDate(project.RegistrationStartDate), 'center'));
+            row.appendChild(createCell(formatDate(project.RegistrationEndDate), 'center'));
+            row.appendChild(createCell(project.ProjectDescription));
 
             const actionCell = document.createElement("td");
             actionCell.classList.add("action-buttons");
@@ -231,27 +284,21 @@ window.initManageProjectPage = function() {
             const editButton = document.createElement("button");
             editButton.classList.add("btn-edit");
             editButton.innerHTML = '<i class="fas fa-edit"></i>';
-            editButton.dataset.subjectProjectId = project.SubjectProjectId; 
+            editButton.title = "Sửa thiết lập gán";
+            editButton.onclick = () => {
+                const projectDataForEdit = JSON.parse(row.dataset.projectData);
+                switchToEditSubjectClassProjectMode(projectDataForEdit);
+            };
 
             const deleteButton = document.createElement("button");
             deleteButton.classList.add("btn-delete");
             deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
-            deleteButton.dataset.subjectProjectId = project.SubjectProjectId; 
+            deleteButton.title = "Xóa gán đề tài này";
+            deleteButton.dataset.subjectClassProjectId = project.SubjectClassProjectId;
 
             actionCell.appendChild(editButton);
             actionCell.appendChild(deleteButton);
             row.appendChild(actionCell);
-
-            // row.addEventListener('click', () => {
-            //     projectNameInput.value = project.ProjectName;
-            //     minStudentsInput.value = project.MinStudents;
-            //     maxStudentsInput.value = project.MaxStudents;
-            //     descriptionInput.value = project.Description;
-
-            //     updateBtn.style.display = 'inline-block';
-            //     popupOverlay.style.display = 'block';
-            //     popupBox.style.display = 'block';
-            // });
 
             projectListBody.appendChild(row);
         });
@@ -277,45 +324,83 @@ window.initManageProjectPage = function() {
     }
 
 
-    async function fetchAndRenderExistingProjects() {
-        console.log("Fetching existing base projects for Tab 1 list...");
-        //existingProjects.innerHTML = '<div class="loading-placeholder" style="padding: 15px; text-align: center;">Đang tải danh sách đề tài gốc...</div>';
+    // async function fetchAndRenderExistingProjects() {
+    //     console.log("Fetching existing base projects for Tab 1 list...");
+    //     //existingProjects.innerHTML = '<div class="loading-placeholder" style="padding: 15px; text-align: center;">Đang tải danh sách đề tài gốc...</div>';
 
-        existingProjects.innerHTML = '';
-        const header = document.createElement('div');
-             header.className = 'project-row header';
-             header.innerHTML = `
-                 <div>Tên đề tài</div>
-                 <div>SL Min</div>
-                 <div>SL Max</div>
-                 <div>Mô Tả</div>`;
-             existingProjects.appendChild(header);
+    //       try {
+    //         const response = await fetch(`/api/projects/my-templates`); 
+    //         if (!response.ok) {
+    //             const errData = await response.json().catch(() => ({}));
+    //             throw new Error(errData.message || `Lỗi ${response.status}`);
+    //         }
+    //         window.myProjectTemplates = await response.json();
+    //         existingProjects.innerHTML = '';
 
-             if (!baseProjects || baseProjects.length === 0) {
-                 existingProjects.innerHTML += '<div style="padding: 15px; text-align: center;">Không có đề tài gốc nào.</div>';
-                 return;
-             }
+    //         const header = document.createElement('div'); 
+    //         header.className = 'project-row header';
+    //         header.innerHTML = `
+    //              <div>Mã ĐT Mẫu</div>
+    //              <div>Tên đề tài Mẫu</div>
+    //              <div>Mô Tả Mẫu</div>
+    //              <div>Hành động</div>`;
+    //         existingProjectsListDiv.appendChild(header);
 
-   
-             baseProjects.forEach(proj => {
-                 const row = document.createElement('div');
-                 row.className = 'project-row';
-    
-                 row.dataset.projectCode = proj.projectCode;
-                 row.dataset.projectName = proj.name;
-                 row.dataset.minStudents = proj.min;
-                 row.dataset.maxStudents = proj.max;
-                 row.dataset.description = proj.description;
+    //         if (!window.myProjectTemplates || window.myProjectTemplates.length === 0) {
+    //             existingProjectsListDiv.innerHTML += '<div style="padding: 15px; text-align: center;">Bạn chưa tạo đề tài mẫu nào.</div>';
+    //             return;
+    //         }
 
-                 row.innerHTML = `
-                     <div>${proj.name || 'N/A'}</div>
-                     <div>${proj.min !== null ? proj.min : 'N/A'}</div>
-                     <div>${proj.max !== null ? proj.max : 'N/A'}</div>
-                     <div>${proj.description || 'N/A'}</div>`;
-                 existingProjects.appendChild(row);
-             });
+    //         window.myProjectTemplates.forEach(proj => {
+    //             const row = document.createElement('div');
+    //             row.className = 'project-row';
+    //             row.dataset.projectCode = proj.ProjectCode; 
+    //             row.dataset.projectName = proj.ProjectName;
+    //             row.dataset.description = proj.Description;
 
-    }
+    //             const selectButton = document.createElement('button');
+    //             selectButton.textContent = 'Chọn để Gán';
+    //             selectButton.classList.add('btn-select-template');
+    //             selectButton.onclick = (e) => {
+    //                 e.stopPropagation(); 
+    //                 const templateData = {
+    //                     ProjectCode: proj.ProjectCode,
+    //                     ProjectName: proj.ProjectName,
+    //                     Description: proj.Description
+    //                 };
+    //                 selectExistingTemplateForAssignment(templateData);
+    //             };
+
+    //             const editTemplateButton = document.createElement('button');
+    //             editTemplateButton.textContent = 'Sửa Template';
+    //             editTemplateButton.classList.add('btn-edit-template');
+    //             editTemplateButton.onclick = (e) => {
+    //                  e.stopPropagation();
+    //                  const templateData = {
+    //                      ProjectCode: proj.ProjectCode,
+    //                      ProjectName: proj.ProjectName,
+    //                      Description: proj.Description
+    //                  };
+    //                  switchToEditTemplateMode(templateData);
+    //             };
+
+
+    //             row.innerHTML = `
+    //                  <div>${proj.ProjectCode || 'N/A'}</div>
+    //                  <div>${proj.ProjectName || 'N/A'}</div>
+    //                  <div>${proj.Description || 'N/A'}</div>
+    //                  <div class="template-actions"></div>`; 
+    //             row.querySelector('.template-actions').appendChild(selectButton);
+    //             row.querySelector('.template-actions').appendChild(editTemplateButton);
+    //             existingProjectsListDiv.appendChild(row);
+    //         });
+
+    //     } catch (error) {
+    //         console.error("Error fetching my project templates:", error);
+    //         existingProjectsListDiv.innerHTML = `<div style="padding: 15px; text-align: center; color: red;">Lỗi tải danh sách đề tài mẫu: ${error.message}</div>`;
+    //     }
+    // }
+
      async function populateFilters() {
           const populateSelect = (selectElement, data, valueField, textField, defaultOptionText = "Tất cả") => {
               selectElement.innerHTML = "";
@@ -363,52 +448,109 @@ window.initManageProjectPage = function() {
 
 
 
-
-    filterClassSelect.addEventListener('change', applyFiltersAndRender);
-    filterSubjectSelect.addEventListener('change', applyFiltersAndRender);
-    filterSearchBtn.addEventListener('click', applyFiltersAndRender);
-    filterNameInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            applyFiltersAndRender();
-        }
-    });
-    populateFilters();      
-    fetchManagedProjects();
-
-    openPopupBtn.addEventListener('click', () => {
-        showPopup('create');
-    });
-
+    if (openPopupBtn) openPopupBtn.addEventListener('click', openCreateNewTemplatePopup);
     if (closePopupBtn) closePopupBtn.addEventListener('click', closePopup);
-    if (popupOverlay) popupOverlay.addEventListener('click', closePopup);
+    if (popupOverlay) popupOverlay.addEventListener('click', (e) => { if (e.target === popupOverlay) closePopup(); });
+    if (btnCancelPopup) btnCancelPopup.addEventListener('click', closePopup);
 
     tabs.forEach((tab, index) => {
-        tab.addEventListener('click', () => switchTab(index));
+        tab.addEventListener('click', () => {
+            if (index === 0) { 
+                switchTab(0);
+            } else {
+                console.log("Tab 2 (Gán cho lớp) sẽ được xử lý sau.");
+            }
+        });
     });
 
 
-    existingProjects.addEventListener('click', (event) => {
-        const clickedRow = event.target.closest('.project-row:not(.header)');
-        if (clickedRow) {
-            //console.log("Existing project row (in Tab 1) clicked:", clickedRow.dataset.projectId);
-     
-            existingProjects.querySelectorAll('.project-row.selected').forEach(row => row.classList.remove('selected'));
-            clickedRow.classList.add('selected');
+    
+    if (btnCancelEditTemplate) {
+        btnCancelEditTemplate.addEventListener('click', () => {
+            currentPopupMode = 'CREATE_NEW_TEMPLATE';
+            currentActionData.projectTemplate = { isPotentiallyCreating: true }; 
+            configureTemplateTabMode();
+            currentActionData.projectTemplate = null;
+        });
+    }
 
-            const projectData = {
-                projectCode: clickedRow.dataset.projectCode, 
-                projectName: clickedRow.dataset.projectName,
-                minStudents: clickedRow.dataset.minStudents,
-                maxStudents: clickedRow.dataset.maxStudents,
-                description: clickedRow.dataset.description
-            };
+    if (btnSaveOrUpdateTemplate) {
+        btnSaveOrUpdateTemplate.addEventListener('click', async () => {
+            const projName = inputProjectName.value.trim();
+            const projDesc = inputProjectDescription.value.trim();
 
-            switchToUpdateMode(projectData);
+            if (!projName) {
+                alert("Tên đề tài mẫu không được để trống.");
+                return;
+            }
 
-        }
-    });
+            let apiEndpoint = '';
+            let method = '';
+            let payload = {};
+            let successMessage = '';
 
-    cancelEditBtn.addEventListener('click', () => {
-         switchToCreateMode(true); 
-    });
+            if (currentPopupMode === 'CREATE_NEW_TEMPLATE') {
+                const projCode = inputNewProjectCode.value.trim();
+                if (!projCode) {
+                    alert("Mã đề tài mẫu không được để trống khi tạo mới.");
+                    return;
+                }
+                apiEndpoint = '/api/projects/templates';
+                method = 'POST';
+                payload = {
+                    projectCode: projCode,
+                    projectName: projName,
+                    description: projDesc
+                };
+                successMessage = "Tạo đề tài mẫu thành công!";
+            } else if (currentPopupMode === 'EDIT_EXISTING_TEMPLATE') {
+                if (!currentActionData.projectTemplate || !currentActionData.projectTemplate.ProjectCode) {
+                    alert("Lỗi: Không có thông tin đề tài mẫu để cập nhật.");
+                    return;
+                }
+                const projectCodeToUpdate = currentActionData.projectTemplate.ProjectCode;
+                
+                apiEndpoint = `/api/projects/templates/${projectCodeToUpdate}`;
+                method = 'PUT';
+                payload = {
+                    projectName: projName,
+                    description: projDesc
+                };
+                successMessage = "Cập nhật đề tài mẫu thành công!";
+            } else {
+                console.error("Chế độ hoạt động không hợp lệ cho nút Lưu/Cập nhật Template:", currentPopupMode);
+                alert("Thao tác không xác định.");
+                return;
+            }
+
+            try {
+                const response = await fetch(apiEndpoint, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json().then(data => ({ status: response.status, ok: response.ok, body: data }));
+
+                if (!result.ok) throw new Error(result.body.message || `Lỗi ${result.status}`);
+
+                alert(result.body.message || successMessage);
+                fetchAndRenderMyProjectTemplates(); 
+      
+            } catch (error) {
+                console.error("Lỗi khi xử lý template:", error);
+                alert(`Lỗi: ${error.message}`);
+            }
+        });
+    }
+
+
+    if (filterClassSelect) filterClassSelect.addEventListener('change', applyFiltersAndRender);
+    if (filterSubjectSelect) filterSubjectSelect.addEventListener('change', applyFiltersAndRender);
+    if (filterSearchBtn) filterSearchBtn.addEventListener('click', applyFiltersAndRender); 
+    if (filterNameInput) filterNameInput.addEventListener('input', applyFiltersAndRender); 
+
+
+    populateFilters();
+    fetchManagedProjects(); 
+    window.isManageProjectPageInitialized = true;
 }
