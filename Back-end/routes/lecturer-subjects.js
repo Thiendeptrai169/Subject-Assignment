@@ -1,71 +1,49 @@
 const express = require('express');
 const router = express.Router();
 const { sql, pool, poolConnect } = require('../config/db');
-const { authenticateToken, authorizeRole } = require('../middleware/auth');
 
-/**
- * GET /subjects
- * Lấy danh sách môn học mà giảng viên phụ trách cùng số lượng dự án.
- * Yêu cầu: Token hợp lệ, vai trò giảng viên (role = 1).
- * Trả về: Mảng các môn học với SubjectId, SubjectCode, SubjectName, TotalProjects.
- */
-router.get('/', authenticateToken, authorizeRole([1]), async (req, res) => {
-    try {
-        // 1. Kiểm tra token và accountId
-        if (!req.user || !req.user.accountId) {
-            console.error('Token không chứa accountId:', req.user);
-            return res.status(401).json({ message: 'Token không hợp lệ, thiếu accountId' });
-        }
-        const accountId = req.user.accountId;
-        console.log('accountId:', accountId);
+const { authenticateToken, attachUserInfo } = require('../middleware/auth');
 
-        // 2. Kiểm tra kết nối database
-        await poolConnect;
-        console.log('Kết nối database thành công');
+ // Lấy danh sách nhóm sinh viên mà giảng viên đó phụ trách
+router.get('/', authenticateToken, attachUserInfo, async (req, res) => {
+  try {
+    const lecturerCode = req.user.lecturerCode; 
+    const groupResult = await pool.request().input('lecturerCode', sql.VarChar(20), lecturerCode).query(`
+       SELECT
+          SG.Id AS GroupId,
+          SG.GroupName,
+          P.ProjectName,
+          SJ.SubjectName,
+          C.ClassCode,
+          Leader.FullName AS LeaderName,
+          MemberCount.TotalMembers
+      FROM StudentGroups SG
+      INNER JOIN SubjectClasses SC ON SG.SubjectClassesId = SC.Id
+      INNER JOIN Subjects SJ ON SC.SubjectCode = SJ.SubjectCode
+      INNER JOIN Class C ON SC.ClassCode = C.ClassCode
+      INNER JOIN SubjectClassProjects SCP ON SG.SubjectClassProjectsId = SCP.Id
+      INNER JOIN Projects P ON SCP.ProjectCode = P.ProjectCode
+      LEFT JOIN Students Leader ON SG.LeaderCode = Leader.StudentCode
+      LEFT JOIN (
+          SELECT StudentGroupId, COUNT(*) AS TotalMembers
+          FROM GroupMembers
+          GROUP BY StudentGroupId
+      ) MemberCount ON MemberCount.StudentGroupId = SG.Id
+      WHERE SC.LecturerCode = 'L001'
+      ORDER BY SG.GroupName;
 
-        // 3. Truy vấn để lấy LecturerId
-        const lecturerRequest = pool.request();
-        const lecturerResult = await lecturerRequest
-            .input('accountId', sql.VarChar(20), accountId)
-            .query('SELECT Id FROM Lecturers WHERE AccountId = @accountId');
 
-        if (!lecturerResult.recordset || lecturerResult.recordset.length === 0) {
-            console.log('Không tìm thấy giảng viên:', { accountId });
-            return res.status(404).json({ message: 'Không tìm thấy giảng viên tương ứng' });
-        }
+    `);
 
-        const lecturerId = lecturerResult.recordset[0].Id;
-        console.log('lecturerId:', lecturerId);
-
-        // 4. Truy vấn danh sách môn học
-        const subjectRequest = pool.request();
-        const subjectResult = await subjectRequest
-            .input('lecturerId', sql.Int, lecturerId)
-            .query(`
-                SELECT 
-                    s.Id AS SubjectId,
-                    s.SubjectCode,
-                    s.SubjectName,
-                    COUNT(sp.Id) AS TotalProjects
-                FROM Subjects s
-                JOIN SubjectProjects sp ON sp.SubjectId = s.Id
-                JOIN Projects p ON p.Id = sp.ProjectId
-                WHERE p.CreatedByLecturer = @lecturerId
-                GROUP BY s.Id, s.SubjectCode, s.SubjectName
-            `);
-
-        // 5. Trả về dữ liệu
-        console.log('Dữ liệu trả về:', subjectResult.recordset);
-        res.json(subjectResult.recordset);
-    } catch (error) {
-        // 6. Ghi log chi tiết và trả về lỗi
-        console.error('Lỗi khi lấy danh sách môn học giảng viên:', {
-            message: error.message,
-            stack: error.stack,
-            accountId: req.user?.accountId
-        });
-        res.status(500).json({ message: 'Lỗi server, vui lòng thử lại sau' });
-    }
+    res.json({
+      total: groupResult.recordset.length,
+      groups: groupResult.recordset,
+    });
+  } catch (error) {
+    console.error('Lỗi khi lấy danh sách nhóm:', error);
+    res.status(500).json({ message: 'Lỗi server', error: error.message });
+  }
 });
 
 module.exports = router;
+

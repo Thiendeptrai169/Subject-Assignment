@@ -14,7 +14,6 @@
 } */
 
 .page-title {
-    text-align: center;
     margin-bottom: 2rem;
 }
 
@@ -51,6 +50,7 @@
     font-size: 1.25rem;
     margin: 0;
     font-weight: 600;
+    color: #00558D;
 }
 
 
@@ -110,6 +110,17 @@
 .view-detail:hover {
     text-decoration: underline;
 }
+
+.view-report-details{
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    outline: none !important;
+    border:none !important;
+    background-color:#fff !important;
+}
+
 
 .empty-state {
     text-align: center;

@@ -1,53 +1,63 @@
 const express = require('express');
 const router = express.Router();
-const { sql, pool, poolConnect } = require('../config/db');
-const { authenticateToken, authorizeRole } = require('../middleware/auth');
+
+const { sql, pool } = require('../config/db');
+const { authenticateToken, attachUserInfo, authorizeRole } = require('../middleware/auth');
 
 // Chỉ giảng viên (RoleId = 1) mới được truy cập
-router.get('/', authenticateToken, authorizeRole([1]), async (req, res) => {
+router.get('/', authenticateToken, attachUserInfo, authorizeRole([1]), async (req, res) => {
     try {
-        await poolConnect;
-        const request = pool.request();
+        const lecturerCode = req.user?.lecturerCode;
+        const subjectClassId = req.query.subjectClassId; // Lấy SubjectClassId từ query string
 
-        // 1. Lấy accountId từ token
-        const accountId = req.user.accountId;
-
-        // 2. Truy vấn để lấy LecturerId tương ứng
-        const lecturerResult = await request
-            .input('accountId', sql.VarChar(20), accountId)
-            .query(`
-                SELECT Id FROM Lecturers WHERE AccountId = @accountId
-            `);
-
-        if (lecturerResult.recordset.length === 0) {
-            return res.status(404).json({ message: 'Không tìm thấy giảng viên tương ứng' });
+        // Kiểm tra lecturerCode
+        if (!lecturerCode) {
+            return res.status(400).json({ message: 'Không tìm thấy mã giảng viên' });
         }
 
-        const lecturerId = lecturerResult.recordset[0].Id;
+        // Kiểm tra subjectClassId
+        if (!subjectClassId) {
+            return res.status(400).json({ message: 'Vui lòng cung cấp SubjectClassId trong query string' });
+        }
 
-        // 3. Truy vấn danh sách project giảng viên đó tạo
+        // Chuyển đổi subjectClassId thành số nguyên
+        const parsedSubjectClassId = parseInt(subjectClassId);
+        if (isNaN(parsedSubjectClassId)) {
+            return res.status(400).json({ message: 'SubjectClassId phải là một số nguyên hợp lệ' });
+        }
+
+        // Thực hiện truy vấn
+        const request = pool.request();
         const projectsResult = await request
-            .input('lecturerId', sql.Int, lecturerId)
+            .input('lecturerCode', sql.VarChar(20), lecturerCode)
+            .input('subjectClassId', sql.Int, parsedSubjectClassId)
             .query(`
-               SELECT
-                P.Id AS ProjectId,
-                P.ProjectName,
-                P.ProjectCode,
-                P.Description,
-                SP.SubjectId,
-                S.SubjectName,
-                C.ClassCode
-            FROM Projects P
-            JOIN SubjectProjects SP ON SP.ProjectId = P.Id
-            JOIN Class C ON SP.ClassId = C.Id
-            JOIN Subjects S ON S.Id = SP.SubjectId
-            WHERE P.CreatedByLecturer = @lecturerId
+                SELECT
+                    P.ProjectCode,
+                    P.ProjectName,
+                    P.Description,
+                    SCP.MaxRegisteredGroups
+                FROM SubjectClasses SC
+                INNER JOIN SubjectClassProjects SCP ON SC.Id = SCP.SubjectClassId
+                INNER JOIN Projects P ON SCP.ProjectCode = P.ProjectCode
+                WHERE SC.LecturerCode = @lecturerCode
+                  AND SC.Id = @subjectClassId
+                ORDER BY P.ProjectName;
             `);
+
+        // Kiểm tra kết quả
+        if (projectsResult.recordset.length === 0) {
+            return res.status(404).json({ message: 'Không tìm thấy đề tài nào cho lớp tín chỉ này' });
+        }
 
         res.json(projectsResult.recordset);
     } catch (error) {
-        console.error('Lỗi khi lấy danh sách dự án giảng viên:', error);
-        res.status(500).json({ message: 'Lỗi server' });
+        console.error('Lỗi khi lấy danh sách đề tài:', error);
+        res.status(500).json({ 
+            message: 'Lỗi server khi lấy danh sách đề tài',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined // Chỉ trả chi tiết lỗi trong môi trường dev
+        });
+
     }
 });
 

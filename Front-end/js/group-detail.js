@@ -46,8 +46,6 @@ async function loadGroupDetail() {
         document.getElementById('subjectName').textContent = data.SubjectName;
         document.getElementById('projectName').textContent = data.ProjectName;
         document.getElementById('memberCount').textContent = data.Members.length;
-        document.getElementById('presentationDate').textContent = formatDate(data.PresentationDate);
-        document.getElementById('groupStatus').textContent = data.GroupStatus;
         document.getElementById('groupNote').textContent = data.Notes || 'Không có ghi chú';
 
         // Hiển thị danh sách thành viên
@@ -58,7 +56,7 @@ async function loadGroupDetail() {
                     <span class="member-role ${getRoleBadgeClass(member.StudentRole)}">${member.StudentRole}</span>
                     <h3 class="member-name">${member.FullName}</h3>
                     <div class="member-info">
-                        <i class="fa-solid fa-id-badge"></i>${member.StudentId}
+                        <i class="fa-solid fa-id-badge"></i>${member.StudentCode}
                     </div>
                     <div class="member-info">
                         <i class="fas fa-graduation-cap"></i>${member.ClassCode}

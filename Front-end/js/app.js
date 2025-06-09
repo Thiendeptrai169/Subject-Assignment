@@ -1,4 +1,7 @@
-document.addEventListener('DOMContentLoaded', ()=>{
+
+
+document.addEventListener('DOMContentLoaded', () => {
+
     const contentElement = document.getElementById('page-content');
     const sidebar = document.querySelector('.sidebar');
     
@@ -15,6 +18,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     
 
 
+
         const link = document.createElement('link');
         link.rel = 'stylesheet';
         link.href = cssUrl;
@@ -26,9 +30,11 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
     //unload
 
-    function unloadPageCSS(){
+
+    function unloadPageCSS() {
         const currentCSSLink = document.getElementById('page-specific-css');
-        if(currentCSSLink){
+        if (currentCSSLink) {
+
 
             document.head.removeChild(currentCSSLink);
             console.log(`Đã gỡ bỏ CSS: ${currentPageCSS}`);
@@ -38,14 +44,15 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
     let loadedScripts = {};
 
-    function loadAndExecuteScript(scriptUrl){
-    //     const oldScript = document.querySelector(`script[src^="${scriptUrl.split('?')[0]}"]`); // Tìm cả khi có version cũ
-    // if (oldScript) {
-    //     console.log(`Removing existing script tag for: ${scriptUrl}`);
-    //     oldScript.remove();
-    // }
 
-        
+    function loadAndExecuteScript(scriptUrl) {
+        //     const oldScript = document.querySelector(`script[src^="${scriptUrl.split('?')[0]}"]`); // Tìm cả khi có version cũ
+        // if (oldScript) {
+        //     console.log(`Removing existing script tag for: ${scriptUrl}`);
+        //     oldScript.remove();
+        // }
+
+
 
         const script = document.createElement('script');
         script.src = scriptUrl + '?v=' + Date.now();
@@ -55,34 +62,37 @@ document.addEventListener('DOMContentLoaded', ()=>{
             console.log(`Đã tải ${scriptUrl}.`);
             loadedScripts[scriptUrl] = true;
 
-            if(scriptUrl === '/script.js' && typeof window.initMainPage === 'function'){
+            if (scriptUrl === '/script.js' && typeof initMainPage === 'function') {
                 initMainPage();
 
-            }else if (scriptUrl === '/js/profile-script.js' && typeof initProfilePage === 'function'){
+            } else if (scriptUrl === '/js/profile-script.js' && typeof initProfilePage === 'function') {
                 initProfilePage();
-          
-            }else if (scriptUrl === '/js/studentnotification.js' && typeof initStudentNotificationPage === 'function'){
+
+            } else if (scriptUrl === '/js/studentnotification.js' && typeof initStudentNotificationPage === 'function') {
                 initStudentNotificationPage();
-            
-            }else if (scriptUrl === '/js/notification.js' && typeof initNotificationPage === 'function'){
+
+            } else if (scriptUrl === '/js/notification.js' && typeof initNotificationPage === 'function') {
                 initNotificationPage();
-            }else if(scriptUrl === '/js/manageproject-script.js' && typeof initManageProjectPage === 'function'){
+            } else if (scriptUrl === '/js/manageproject-script.js' && typeof initManageProjectPage === 'function') {
+
                 initManageProjectPage();
             } else if (scriptUrl === '/js/group-page.js' && typeof loadMyGroups === 'function') {
                 loadMyGroups();
-                loadSemester();
+                renderReportDetails();
             } else if (scriptUrl === '/js/group-detail.js' && typeof loadGroupDetail === 'function') {
                 loadGroupDetail();
-            } else if (scriptUrl === '/js/lecturer-projects.js' && typeof renderLecturerProjects === 'function') {
-                renderLecturerProjects();
+
+            } else if (scriptUrl === '/js/lecturer-grading.js' && typeof initLecturerGradingPage === 'function') {
+                initLecturerGradingPage();
             } else if (scriptUrl === '/js/project-groups.js' && typeof renderProjectGroups === 'function') {
                 renderProjectGroups();
-            } else if (scriptUrl === '/js/lecturer-subjects.js' && typeof renderLecturerSubject === 'function') {
-                renderLecturerSubject();
+            } else if (scriptUrl === '/js/lecturer-subjects.js' && typeof initLecturerSubjectsPage === 'function') {
+                initLecturerSubjectsPage();
+                // renderReportDetails();
             }
 
-                
-        
+
+
             // }else if (scriptUrl === '/js/notification.js' && typeof initMainPage === 'function'){
             //     loadNotifications();
             // }
@@ -101,7 +111,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     const loadContent = async (url, pushState = true) => {
         console.log(`Đang tải nội dung từ ${url}...`);
 
-        
+
 
         unloadPageCSS();
 
@@ -112,14 +122,17 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
 
         // url = window.location.pathname;
-        
+
+
+
 
         // Loại bỏ /Front-end nếu có 
         if (url.startsWith('/Front-end')) {
             url = url.replace('/Front-end', '');
         }
 
-        switch(url){
+        switch (url) {
+
 
             case '/':
             case '/index.html':
@@ -172,11 +185,25 @@ document.addEventListener('DOMContentLoaded', ()=>{
                 pageCSS = null;
                 pageScript = '/js/change-password.js';
                 break;
-            case '/lecturer-projects.html':
-                contentUrl = '/pages/lecturer-projects.html';
+
+            case '/lecturer-grading.html':
+                contentUrl = '/pages/lecturer-grading.html';
+                pageTitle = 'Quản lý nhóm';
+                pageCSS = '/css/lecturer-grading.css';
+                pageScript = '/js/lecturer-grading.js';
+                break;
+            case '/project-groups.html':
+                contentUrl = '/pages/project-groups.html';
                 pageTitle = 'Quản lý nhóm';
                 pageCSS = '/css/groups.css';
-                pageScript = '/js/lecturer-projects.js';
+                pageScript = '/js/project-groups.js';
+                break;
+            case '/lecturer-subjects.html':
+                contentUrl = '/pages/lecturer-subjects.html';
+                pageTitle = 'Quản lý nhóm';
+                pageCSS = '/css/lecturer-subject.css';
+                pageScript = '/js/lecturer-subjects.js';
+
                 break;
             case '/project-groups.html':
                 contentUrl = '/pages/project-groups.html';
@@ -233,14 +260,18 @@ document.addEventListener('DOMContentLoaded', ()=>{
     const handleNavClick = (e) => {
         const link = e.target.closest('a.sidebar-link, .navbar a, a.popup-nav-link, a.spa-link');
 
-        if(link && link.href && link.origin === window.location.origin && !link.href.includes('#')){
+
+        if (link && link.href && link.origin === window.location.origin && !link.href.includes('#')) {
+
 
             e.preventDefault();
             const targetUrl = link.getAttribute('href');
             const currentPath = window.location.pathname;
             const isSamePage = (targetUrl === currentPath || targetUrl === currentPath + '/');
 
-            if(!isSamePage){
+
+            if (!isSamePage) {
+
 
                 loadContent(targetUrl, true);
                 if (link.classList.contains('popup-nav-link')) {
@@ -252,7 +283,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
     };
 
 
-    if(sidebar){
+    if (sidebar) {
+
         sidebar.addEventListener('click', handleNavClick);
     }
     const navbar = document.querySelector('.navbar');
@@ -286,10 +318,25 @@ if (userAvatar && userPopup) {
             // window.location.remove('token');
             window.location.href = '/';
         });
+
+
+        const logoutBtn = userPopup.querySelector('.logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', function () {
+                userPopup.classList.remove('show');
+                localStorage.removeItem('token');
+                // window.location.remove('token');
+                window.location.href = '/';
+            });
+        }
+    } else {
+        console.warn("User avatar or popup element not found in the main shell.");
+
     }
 } else {
     console.warn("User avatar or popup element not found in the main shell.");
 }
+
 
 
     //handle back and forward button
@@ -302,7 +349,8 @@ if (userAvatar && userPopup) {
     //load initial content
     const initialUrl = window.location.pathname;
 
-    if(initialUrl === '/' || initialUrl === '/index.html'){
+    if (initialUrl === '/' || initialUrl === '/index.html') {
+
         unloadPageCSS();
         loadAndExecuteScript('/script.js');
     }else{
@@ -334,6 +382,7 @@ if (userAvatar && userPopup) {
             if (sidebarNameEl) sidebarNameEl.textContent = fullName;
             if (sidebarIdEl) sidebarIdEl.textContent = userId;
 
+
         } catch (error) {
             console.error('Lỗi khi gọi API /api/profiles:', error);
         }
@@ -341,7 +390,8 @@ if (userAvatar && userPopup) {
 
     loadUserShortInfo();
 
-    // === XỬ LÝ CHUÔNG THÔNG BÁO ===
+
+// === XỬ LÝ CHUÔNG THÔNG BÁO ===
     const notificationDiv = document.querySelector('.notification');
     const badge = notificationDiv ? notificationDiv.querySelector('.badge') : null;
     const token = localStorage.getItem('token');
@@ -454,6 +504,7 @@ if (userAvatar && userPopup) {
         }
     });
 
+
     localStorage.setItem('notificationRead', Date.now());
 
     window.addEventListener('storage', function(e) {
@@ -461,6 +512,8 @@ if (userAvatar && userPopup) {
         if (window.updateUnreadCount) window.updateUnreadCount();
       }
     });
+
+
 
 });
 

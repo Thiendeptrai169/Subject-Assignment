@@ -137,16 +137,20 @@ const express = require('express');
 const router = express.Router()
 const {sql, pool, poolConnect} = require('../config/db');
 
-router.get('/', async (req,res) =>{
-    // const accountId = await req.accountId;
-    const accountId = 'SV001';
+const { authenticateToken, attachUserInfo, authorizeRole } = require('../middleware/auth');
+
+router.get('/', authenticateToken, attachUserInfo, async (req,res) =>{
+    const accountId = await req.accountId;
+
 
     try{
         await poolConnect;
         const request = pool.request();
         
         const result = await request
-        .input('AccountId', sql.VarChar, accountId)
+
+        .input('AccountId', sql.VarChaṛ(20), accountId)
+
         .query(`
             SELECT 
                 A.Id AS AccountId, A.Username, A.RoleId, R.RoleName,

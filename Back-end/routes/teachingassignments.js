@@ -3,14 +3,19 @@ const express = require('express');
 const router = express.Router();
 const { sql, pool, poolConnect } = require('../config/db');
 
-router.get('/filters', async (req, res) => {
-    const loggedInLecturerCode = 'GV001'; 
+const { authenticateToken, attachUserInfo, authorizeRole } = require('../middleware/auth');
+
+router.get('/filters', authenticateToken, attachUserInfo, authorizeRole([1]), async (req, res) => {
+    const loggedInLecturerCode = req.user.lecturerCode; 
+
 
     try {
         await poolConnect;
         const request = pool.request();
 
-        request.input('lecturerCodeParam', sql.VarChar, loggedInLecturerCode); 
+
+        request.input('lecturerCodeParam', sql.VarChar(20), loggedInLecturerCode); 
+
 
         const query = `
             SELECT DISTINCT

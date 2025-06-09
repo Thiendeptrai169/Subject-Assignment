@@ -51,6 +51,13 @@ const profileRoutes = require('./routes/profiles');
 const teachingAssignmentRoutes = require('./routes/teachingassignments');
 const enrollmentsRouter = require('./routes/enrollments');
 
+const reportPeriodRoutes = require('./routes/report-period');
+const studentGroupRoutes = require('./routes/student-groups');
+const subjectClassRoutes = require('./routes/subject-class');
+const subjectGradingRoutes = require('./routes/subject-grading');
+const subClassProjectRoutes = require('./routes/subclass-projects');
+
+
 app.use('/api/projects',projectRoutes);
 app.use('/api/notifications', notificationRoutes); 
 app.use('/api/StudentNotifications', StudentNotificationRoutes);
@@ -64,6 +71,14 @@ app.use('/api/lecturer-projects', lecturerProjectsRoutes);
 app.use('/api/project-groups', projectGroupsRoutes);
 app.use('/api/lecturer-subjects', lecturerSubjectsRoutes);
 app.use('/api/enrollments', enrollmentsRouter);
+
+app.use('/api/report-period', reportPeriodRoutes);
+app.use('/api/student-groups', studentGroupRoutes);
+app.use('/api/subject-class', subjectClassRoutes);
+app.use('/api/subject-grading', subjectGradingRoutes);
+app.use('/api/subclass-projects', subClassProjectRoutes);
+
+
 
 // Route bảo vệ (dữ liệu JSON)
 app.get('/protected', (req, res) => {
@@ -109,17 +124,17 @@ app.post('/login', async (req, res) => {
             });
         }
         const account = result.recordset[0];
-        // const isMatch = await bcrypt.compare(password, account.Password);
-        // if (!isMatch) {
-        // So sánh trực tiế p mật khẩu plaintext
-        if (password !== account.Password) {
+
+        const isMatch = await bcrypt.compare(password, account.Password);
+        if (!isMatch) {
+
             console.log('Invalid password for user:', username);
             return res.status(401).json({
                 error: 'Unauthorized',
                 message: 'Đăng nhập thất bại: sai tên tài khoản hoặc mật khẩu'
             });
         }
-
+        
         if (!account.IsActive) {
             console.log('Inactive account:', username);
             return res.status(403).json({

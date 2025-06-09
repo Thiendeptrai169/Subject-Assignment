@@ -1,2 +1,327 @@
-<h2>Môn học bạn phụ trách</h2>
-<div id="subject-list" class="mt-3"></div>
+
+<div class="page-header">
+  <div class="container">
+    <h1 class="page-title">
+      <i class="fas fa-users me-3"></i>Quản lý Nhóm Sinh viên
+    </h1>
+  </div>
+</div>
+
+<div class="container">
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="row">
+      <div class="col-md-3 mb-3">
+        <label for="subject-filter" class="form-label">
+          <i class="fas fa-book me-1"></i>Môn học
+        </label>
+        <select class="form-select" id="subject-filter">
+          <option value="">Tất cả môn học</option>
+          
+        </select>
+      </div>
+      <div class="col-md-3 mb-3">
+        <label for="class-filter" class="form-label">
+          <i class="fas fa-graduation-cap me-1"></i>Lớp
+        </label>
+        <select class="form-select" id="class-filter">
+          <option value="">Tất cả lớp</option>
+          
+        </select>
+      </div>
+      <div class="col-md-3 mb-3">
+        <label for="project-filter" class="form-label">
+          <i class="fas fa-file-text me-1"></i>Đề tài
+        </label>
+        <select class="form-select" id="project-filter">
+          <option value="">Tất cả đề tài</option>
+          
+        </select>
+      </div>
+     <!-- Search input -->
+      <div class="col-md-3 mb-3">
+        <label for="search-input" class="form-label">
+          <i class="fas fa-search me-1"></i>Tìm kiếm
+        </label>
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="Tìm kiếm nhóm..." id="search-input">
+          <button class="btn btn-primary" type="button" id="search-button">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </div>
+      <div class="col-md-12 text-md-end mt-2">
+        <span class="text-muted" id="group-count">
+          <i class="fas fa-info-circle me-1"></i>Đang tải...
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table Card -->
+  <div class="card">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle mb-0" id="student-groups-table">
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th>TÊN NHÓM</th>
+              <th>MÔN HỌC</th>
+              <th>LỚP</th>
+              <th>ĐỀ TÀI</th>
+              <th>TRƯỞNG NHÓM</th>
+              <th>SỐ THÀNH VIÊN</th>
+              <th>TRẠNG THÁI BÁO CÁO</th>
+              <th>THAO TÁC</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phân trang -->
+  <nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center" id="pagination">
+      <!-- vùng render phân trang -->
+    </ul>
+  </nav>
+</div>
+
+<!-- Modal Trạng thái báo cáo -->
+<div class="modal fade" id="reportDetailsModal" tabindex="-1" aria-labelledby="reportDetailsModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reportDetailsModalLabel">
+                  <i class="fas fa-chart-line me-2"></i>Chi tiết các đợt báo cáo
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body" id="reportDetailsModalBody">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                  <i class="fas fa-times me-1"></i>Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Sửa nhóm -->
+<div class="modal fade" id="editGroupModal" tabindex="-1" aria-labelledby="editGroupModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg"> 
+    <form id="editGroupForm" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editGroupModalLabel">
+          <i class="fas fa-edit me-2"></i>Sửa thông tin nhóm
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+      
+      <div class="modal-body p-4">
+        <!-- Hidden groupId -->
+        <input type="hidden" id="editGroupId" />
+
+        <div class="row g-3">
+          <!-- Mã nhóm -->
+          <div class="col-md-4 mb-3">
+            <label for="editGroupCode" class="form-label fw-semibold text-secondary small">Mã nhóm</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
+              <input type="text" id="editGroupCode" class="form-control bg-light" disabled />
+            </div>
+          </div>
+
+          <!-- Tên nhóm -->
+          <div class="col-md-8 mb-3">
+            <label for="editGroupName" class="form-label fw-semibold text-secondary small">Tên nhóm <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-users"></i></span>
+              <input type="text" id="editGroupName" class="form-control" required placeholder="Nhập tên nhóm" />
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <!-- Môn học -->
+          <div class="col-md-7 mb-3">
+            <label for="editSubjectName" class="form-label fw-semibold text-secondary small">Môn học</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-book"></i></span>
+              <input type="text" id="editSubjectName" class="form-control bg-light" disabled />
+            </div>
+          </div>
+
+          <!-- Lớp -->
+          <div class="col-md-5 mb-3">
+            <label for="editClassName" class="form-label fw-semibold text-secondary small">Lớp</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-graduation-cap"></i></span>
+              <input type="text" id="editClassName" class="form-control bg-light" disabled />
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <!-- Số thành viên -->
+          <div class="col-md-4 mb-3">
+            <label for="editTotalMembers" class="form-label fw-semibold text-secondary small">Số thành viên</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-user-plus"></i></span>
+              <input type="number" id="editTotalMembers" class="form-control bg-light" disabled />
+            </div>
+          </div>
+
+          <!-- Đề tài -->
+          <div class="col-md-8 mb-3">
+            <label for="editProject" class="form-label fw-semibold text-secondary small">Đề tài <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-file-text"></i></span>
+              <select id="editProject" class="form-select" required>
+                <option value="">-- Chọn đề tài --</option>
+                <!-- Đề tài load động -->
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trưởng nhóm -->
+        <div class="mb-3">
+          <label for="editGroupLeader" class="form-label fw-semibold text-secondary small">Trưởng nhóm <span class="text-danger">*</span></label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-user-tie"></i></span>
+            <select id="editGroupLeader" class="form-select" required>
+              <option value="">-- Chọn trưởng nhóm --</option>
+              <!-- load thành viên -->
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer d-flex justify-content-between py-3">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-1"></i>Hủy
+        </button>
+        <button type="submit" class="btn btn-primary px-4">
+          <i class="fas fa-check me-1"></i>Lưu thay đổi
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Xác nhận Xóa Nhóm -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmDeleteLabel">
+          <i class="fas fa-exclamation-triangle text-warning me-2"></i>Xác nhận xóa nhóm
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+      <div class="modal-body">
+        <div class="text">
+          <i class="text-danger mb-3" style="font-size: 3rem;"></i>
+          <p class="mb-0">Bạn có chắc chắn muốn xóa nhóm này?</p>
+          <small class="text-muted">Hành động này không thể hoàn tác!</small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-1"></i>Hủy
+        </button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+          <i class="fas fa-trash me-1"></i>Xóa
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Thông Báo Xóa Thành Công -->
+<div class="modal fade" id="deleteSuccessModal" tabindex="-1" aria-labelledby="deleteSuccessLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteSuccessLabel">
+          <i class="fas fa-check-circle text-success me-2"></i>Thành công
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+      <div class="modal-body">
+        <div class="text-center">
+          <i class="fas fa-check-circle text-success mb-3" style="font-size: 3rem;"></i>
+          <p class="mb-0">Nhóm đã được xóa thành công!</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+          <i class="fas fa-check me-1"></i>Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Quản lý Thành viên Nhóm -->
+<div class="modal fade" id="manageMembersModal" tabindex="-1" aria-labelledby="manageMembersModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="manageMembersModalLabel">
+          <i class="fas fa-users-cog me-2"></i>Quản lý Thành viên nhóm
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Bảng danh sách thành viên -->
+        <div class="table-responsive">
+          <table class="table table-bordered" id="membersTable">
+            <thead>
+              <tr>
+                <th><i class="fas fa-id-card me-1"></i>Mã sinh viên</th>
+                <th><i class="fas fa-user me-1"></i>Họ tên</th>
+                <th><i class="fas fa-user-tag me-1"></i>Vai trò</th>
+                <th><i class="fas fa-calendar me-1"></i>Ngày tham gia</th>
+                <th><i class="fas fa-cogs me-1"></i>Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Dữ liệu tv nhóm -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Thêm thành viên -->
+        <div class="mt-4 p-3 bg-light rounded">
+          <label for="addMemberSelect" class="form-label fw-bold">
+            <i class="fas fa-user-plus me-1"></i>Thêm thành viên mới:
+          </label>
+          <div class="d-flex gap-2 align-items-center">
+            <select id="addMemberSelect" class="form-select" style="flex: 1;">
+              <option value="">-- Chọn sinh viên thêm --</option>
+              <!-- render sinh viên thêm-->
+            </select>
+            <button class="btn btn-primary" id="addMemberBtn" disabled>
+              Thêm
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-1"></i>Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

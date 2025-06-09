@@ -11,6 +11,7 @@ async function addUser(id, username, password, roleId) {
 
         await poolConnect;
         const request = pool.request();
+
         // Thêm user vào bảng Accounts
         const result = await request
             .input('id', sql.VarChar, id)
@@ -18,11 +19,9 @@ async function addUser(id, username, password, roleId) {
             .input('password', sql.VarChar, hashedPassword)
             .input('roleId', sql.Int, roleId)
             .input('isActive', sql.Bit, 1)
-            .input('createdAt', sql.DateTime, createdAt)
-            .input('updatedAt', sql.DateTime, createdAt)
             .query(`
-                INSERT INTO Accounts (Id, Username, Password, RoleId, IsActive, CreatedAt, UpdatedAt)
-                VALUES (@id, @username, @password, @roleId, @isActive, @createdAt, @updatedAt)
+                INSERT INTO Accounts (Id, Username, Password, RoleId, IsActive)
+                VALUES (@id, @username, @password, @roleId, @isActive)
             `);
 
         console.log(`Tạo tài khoản thành công`);
@@ -44,9 +43,20 @@ async function addUser(id, username, password, roleId) {
         // Ghi lại vào file
         fs.writeFileSync(filePath, JSON.stringify(existingUsers, null, 2), 'utf8');
     } catch (error) {
-        console.error('Lỗi khi thêm user:', error.message);
+        console.error('Lỗi khi thêm user:', error);
     }
 }
 
 
-addUser('SV010', 'sinhvien010', '1234533216789', 1); // id, username, password, roleId
+addUser('SV001', 'n22dccn154', '12345', 2);
+// addUser('SV012', 'n22dccn201', '123456', 2);
+// addUser('SV013', 'n22dccn202', '123456', 2);
+// addUser('SV014', 'n22dccn203', '123456', 2);
+// addUser('SV015', 'n22dccn204', '123456', 2);
+// addUser('SV016', 'n22dccn205', '123456', 2);
+// addUser('SV017', 'n22dccn206', '123456', 2);
+// addUser('SV018', 'n22dccn207', '123456', 2);
+// addUser('SV019', 'n22dccn208', '123456', 2);
+// addUser('SV020', 'n22dccn209', '123456', 2);
+// addUser('SV021', 'n22dccn210', '123456', 2);
+

@@ -2,8 +2,10 @@ express = require('express');
 const router = express.Router();
 const {sql, pool, poolConnect } = require('../config/db');
 
-router.get('/', async (req, res) => {
-    const loggedInStudentCode = 'N22DCCN001'; // Hardcode for now
+const { authenticateToken, attachUserInfo, authorizeRole } = require('../middleware/auth');
+
+router.get('/', authenticateToken, attachUserInfo, async (req, res) => {
+    const loggedInStudentCode = req.user.studentCode; // Hardcode for now
 
     try {
         await poolConnect;

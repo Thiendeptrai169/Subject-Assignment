@@ -22,25 +22,18 @@ document.getElementById('cms_bm_frm_login').addEventListener('submit', async (ev
         if (!response.ok) {
             throw new Error(data.message || 'Có lỗi xảy ra');
         }
-        // Xóa toàn bộ nếu không lưu gì quan trọng khác
-        localStorage.clear();
 
-        // Lưu token vào localStorage
-        // localStorage.setItem('token', data.token);
-        // console.log('Token saved:', data.token);
+        localStorage.clear();
         localStorage.setItem('token', data.token);
         localStorage.setItem('role', data.role);
 
 
-
-        // Kiểm tra token đã được lưu
         const savedToken = localStorage.getItem('token');
         console.log('Token after save:', savedToken);
 
-        // Chuyển hướng dựa vào role
-        if (data.role === 1) { // Admin
+        if (data.role === 1) { 
             window.location.href = './index.html';
-        } else if (data.role === 2) { // Teacher
+        } else if (data.role === 2) { 
             window.location.href = './index.html';
         }
     } catch (error) {
